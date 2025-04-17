@@ -1,0 +1,98 @@
+# Spring Boot
+# ==================
+# Target directory
+/target/
+
+# IntelliJ IDEA
+# ==================
+# Module files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Build files
+out/
+
+# Logs
+logs/
+*.log
+
+# Gradle
+.gradle/
+build/
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+pom.xml.last
+pom.xml.original
+pom.xml.versionsBackup
+pom.xml.versionsBackup.*
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# NetBeans
+nbproject/private/
+build.xml
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# VS Code
+.vscode/
+
+# Thumbs.db
+Thumbs.db
+
+# macOS
+.DS_Store
+
+# Node.js and React
+# ==================
+# Dependency directories
+frontend/node_modules/
+frontend/build/
+
+# Log files
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Editor directories and files
+frontend/.vscode/
+frontend/.idea/
+frontend/*.iml
+frontend/*.ipr
+frontend/*.iws
+
+# OS generated files
+frontend/.DS_Store
+frontend/Thumbs.db
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Webpack stats
+frontend/webpack-stats.json
+
+# Optional: Ignore all files in the frontend directory except the ones you want to track
+# frontend/*
+# !frontend/src/
+# !frontend/public/
+# !frontend/package.json
+# !frontend/package-lock.json
+# !frontend/yarn.lock
+# !frontend/.gitignore
