@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.klaxon.diary.util.BearerUtil.getBearer;
 import static com.klaxon.diary.util.Constants.ACCESS_TOKEN_HEADER;
 
 @Component
@@ -46,6 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearer = request.getHeader(ACCESS_TOKEN_HEADER);
-        return (bearer != null && bearer.startsWith("Bearer ")) ? bearer.substring(7) : null;
+        return getBearer(bearer);
     }
 }

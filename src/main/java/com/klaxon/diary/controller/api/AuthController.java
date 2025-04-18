@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.klaxon.diary.util.BearerUtil.getBearer;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -31,8 +33,6 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<JwtResponse> refresh(@RequestHeader String authorization) {
-        var refreshToken = (authorization != null && authorization.startsWith("Bearer ")) ?
-                authorization.substring(7) : null;
-        return ResponseEntity.ok().body(authService.refresh(refreshToken));
+        return ResponseEntity.ok().body(authService.refresh(getBearer(authorization)));
     }
 }
