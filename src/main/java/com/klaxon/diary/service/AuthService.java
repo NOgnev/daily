@@ -2,7 +2,8 @@ package com.klaxon.diary.service;
 
 import com.klaxon.diary.config.security.JwtProvider;
 import com.klaxon.diary.dto.AuthRequest;
-import com.klaxon.diary.dto.JwtResponse;
+import com.klaxon.diary.dto.TokensHolder;
+import com.klaxon.diary.dto.RefreshToken;
 import com.klaxon.diary.dto.User;
 import com.klaxon.diary.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
+    private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
 
     public User register(String nickname, String password) {
@@ -33,27 +35,33 @@ public class AuthService {
         return userRepository.save(new User(UUID.randomUUID(), nickname, passwordEncoder.encode(password)));
     }
 
-    public JwtResponse login(AuthRequest request) {
+    public TokensHolder login(AuthRequest request, String deviceId) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.nickname(), request.password())
         );
 
         String accessToken = jwtProvider.generateAccessToken(auth);
-        String refreshToken = jwtProvider.generateRefreshToken(auth);
+        String refreshToken = refreshTokenService.createRefreshToken(auth.getName(), deviceId).token();
 
-        return new JwtResponse(accessToken, refreshToken);
+        return new TokensHolder(accessToken, refreshToken);
     }
 
-    public JwtResponse refresh(String refreshToken) {
-        if (!jwtProvider.validateToken(refreshToken) || !jwtProvider.isRefreshToken(refreshToken)) {
-            throw new RuntimeException("Invalid refresh token");
+    public TokensHolder refresh(String requestToken, String deviceId) {
+        if (requestToken == null) {
+            throw new RuntimeException("Refresh token is required");
         }
 
-        var username = jwtProvider.getUsernameFromToken(refreshToken);
-        var userDetails = userDetailsService.loadUserByUsername(username);
-        var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        var newAccessToken = jwtProvider.generateAccessToken(authToken);
+        RefreshToken refreshToken = refreshTokenService.validateRefreshToken(requestToken);
 
-        return new JwtResponse(newAccessToken, refreshToken);
+        if(!refreshToken.deviceId().equals(deviceId)) {
+            throw new RuntimeException("Invalid device id");
+        }
+        var userDetails = userDetailsService.loadUserByUsername(refreshToken.user().nickname());
+        var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        var newAccessToken = jwtProvider.generateAccessToken(authToken);
+        var newRefreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername(), deviceId).token();
+
+        return new TokensHolder(newAccessToken, newRefreshToken);
     }
 }
