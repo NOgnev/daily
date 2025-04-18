@@ -21,13 +21,15 @@ public class RefreshTokenService {
 
     @Value("${jwt.refresh-expiration-ms}")
     private long jwtRefreshExpirationMs;
+    @Value("${jwt.max-devices-count}")
+    private int maxDevicesCount;
 
     public RefreshToken createRefreshToken(String username, String deviceId) {
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         List<RefreshToken> allByUserId = refreshTokenRepository.findAllByUserId(user.id());
-        if (allByUserId.size() > 5) {
+        if (allByUserId.size() > maxDevicesCount) {
             throw new RuntimeException("Too many refresh tokens");
         }
         allByUserId.stream()
