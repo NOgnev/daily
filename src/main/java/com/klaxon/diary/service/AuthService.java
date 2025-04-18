@@ -2,15 +2,14 @@ package com.klaxon.diary.service;
 
 import com.klaxon.diary.config.security.JwtProvider;
 import com.klaxon.diary.dto.AuthRequest;
-import com.klaxon.diary.dto.TokensHolder;
 import com.klaxon.diary.dto.RefreshToken;
+import com.klaxon.diary.dto.TokensHolder;
 import com.klaxon.diary.dto.User;
 import com.klaxon.diary.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
