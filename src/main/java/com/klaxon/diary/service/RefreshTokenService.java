@@ -26,10 +26,17 @@ public class RefreshTokenService {
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        refreshTokenRepository.deleteByUserAndDeviceId(user, deviceId);
+        List<RefreshToken> allByUserId = refreshTokenRepository.findAllByUserId(user.id());
+        if (allByUserId.size() > 5) {
+            throw new RuntimeException("Too many refresh tokens");
+        }
+        allByUserId.stream()
+                .filter(refreshToken -> refreshToken.deviceId().equals(deviceId))
+                .findFirst()
+                .ifPresent(token -> refreshTokenRepository.delete(token.userId(), token.deviceId()));
 
         RefreshToken token = new RefreshToken(
-                user, UUID.randomUUID().toString(), deviceId, Instant.now().plusMillis(jwtRefreshExpirationMs));
+                user.id(), UUID.randomUUID().toString(), deviceId, Instant.now().plusMillis(jwtRefreshExpirationMs));
 
         return refreshTokenRepository.save(token);
     }
@@ -38,12 +45,11 @@ public class RefreshTokenService {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Refresh token not found"));
 
+        refreshTokenRepository.delete(refreshToken.userId(), refreshToken.deviceId());
+
         if (refreshToken.expiryDate().isBefore(Instant.now())) {
-            refreshTokenRepository.delete(refreshToken);
             throw new RuntimeException("Refresh token expired");
         }
-
-        refreshTokenRepository.delete(refreshToken);
 
         return refreshToken;
     }
@@ -52,13 +58,13 @@ public class RefreshTokenService {
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        refreshTokenRepository.deleteByUserAndDeviceId(user, deviceId);
+        refreshTokenRepository.delete(user.id(), deviceId);
     }
 
     public List<RefreshToken> getDevices(String username) {
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return refreshTokenRepository.findAllByUser(user);
+        return refreshTokenRepository.findAllByUserId(user.id());
     }
 }

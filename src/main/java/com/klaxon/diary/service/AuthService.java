@@ -23,12 +23,11 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserDetailsService userDetailsService;
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
 
     public User register(String nickname, String password) {
-        if (userRepository.existsByNickname(nickname)) {
+        if (userRepository.findByNickname(nickname).isPresent()) {
             throw new RuntimeException("User with nickname " + nickname + " already exists");
         }
 
@@ -53,10 +52,17 @@ public class AuthService {
 
         RefreshToken refreshToken = refreshTokenService.validateRefreshToken(requestToken);
 
-        if(!refreshToken.deviceId().equals(deviceId)) {
+        if (!refreshToken.deviceId().equals(deviceId)) {
             throw new RuntimeException("Invalid device id");
         }
-        var userDetails = userDetailsService.loadUserByUsername(refreshToken.user().nickname());
+        var userDetails = userRepository.findById(refreshToken.userId())
+                .map(user -> org.springframework.security.core.userdetails.User
+                        .withUsername(user.nickname())
+                        .password(user.password())
+                        .authorities("USER")
+                        .build())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         var newAccessToken = jwtProvider.generateAccessToken(authToken);

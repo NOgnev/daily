@@ -1,40 +1,72 @@
 package com.klaxon.diary.repository;
 
 import com.klaxon.diary.dto.RefreshToken;
-import com.klaxon.diary.dto.User;
-import org.springframework.stereotype.Component;
+import com.klaxon.diary.mapper.RefreshTokenRowMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 
-@Component
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
+
+@Repository
+@RequiredArgsConstructor
 public class RefreshTokenRepository {
-    public static Set<RefreshToken> TOKENS = new HashSet<>();
 
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final RefreshTokenRowMapper refreshTokenRowMapper;
 
-    public List<RefreshToken> findAllByUser(User user) {
-        return TOKENS.stream().filter(t -> t.user().id().equals(user.id())).toList();
+    public List<RefreshToken> findAllByUserId(UUID userId) {
+        var sql = """
+                SELECT user_id,
+                       token,
+                       device_id,
+                       expiry_date
+                FROM diary.refresh_token
+                WHERE user_id = :userId
+                """;
+        return jdbcTemplate.query(sql, Map.of("userId", userId), refreshTokenRowMapper);
     }
 
     public Optional<RefreshToken> findByToken(String token) {
-        return TOKENS.stream()
-                .filter(t -> t.token().equals(token))
-                .findFirst();
+        var sql = """
+                SELECT user_id,
+                       token,
+                       device_id,
+                       expiry_date
+                FROM diary.refresh_token
+                WHERE token = :token
+                """;
+        return Optional.ofNullable(singleResult(
+                jdbcTemplate.query(sql, Map.of("token", token), refreshTokenRowMapper)
+        ));
     }
 
     public RefreshToken save(RefreshToken token) {
-        TOKENS.add(token);
-        return token;
+        var sql = """
+                INSERT INTO diary.refresh_token (user_id, token, device_id, expiry_date)
+                VALUES (:userId, :token, :deviceId, :expiryDate)
+                RETURNING user_id, token, device_id, expiry_date
+                """;
+        return jdbcTemplate.queryForObject(sql,
+                Map.of("userId", token.userId(),
+                        "token", token.token(),
+                        "deviceId", token.deviceId(),
+                        "expiryDate", Timestamp.from(token.expiryDate())),
+                refreshTokenRowMapper);
     }
 
-    public void delete(RefreshToken refreshToken) {
-        TOKENS.removeIf(t -> t.token().equals(refreshToken.token()));
-    }
-
-    public void deleteByUserAndDeviceId(User user, String deviceId) {
-        TOKENS.removeIf(t -> t.user().id().equals(user.id())
-                && t.deviceId().equals(deviceId));
+    public void delete(UUID userId, String deviceId) {
+        var sql = """
+                DELETE FROM diary.refresh_token
+                WHERE user_id = :userId
+                  AND device_id = :deviceId
+                """;
+        jdbcTemplate.update(sql, Map.of("userId", userId, "deviceId", deviceId));
     }
 }

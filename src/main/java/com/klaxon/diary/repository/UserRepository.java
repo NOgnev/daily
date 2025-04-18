@@ -1,28 +1,61 @@
 package com.klaxon.diary.repository;
 
 import com.klaxon.diary.dto.User;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 
-@Component
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
+
+@Repository
+@RequiredArgsConstructor
 public class UserRepository {
-    public static Set<User> NICKNAMES = new HashSet<>();
 
-    public boolean existsByNickname(String nickname) {
-        return NICKNAMES.stream().anyMatch(u -> u.nickname().equals(nickname));
-    }
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final RowMapper<User> userRowMapper;
+
 
     public User save(User user) {
-        NICKNAMES.add(user);
-        return user;
+        var sql = """
+                INSERT INTO diary.user (id, nickname, password)
+                VALUES (:id, :nickname, :password)
+                RETURNING id, nickname, password
+                """;
+        return jdbcTemplate.queryForObject(sql,
+                Map.of("id", user.id(), "nickname", user.nickname(), "password", user.password()),
+                userRowMapper);
     }
 
     public Optional<User> findByNickname(String nickname) {
-        return NICKNAMES.stream()
-                .filter(u -> u.nickname().equals(nickname))
-                .findFirst();
+        var sql = """
+                SELECT id,
+                       nickname,
+                       password
+                FROM diary.user
+                WHERE nickname = :nickname
+                  AND NOT deleted
+                """;
+        return Optional.ofNullable(singleResult(
+                jdbcTemplate.query(sql, Map.of("nickname", nickname), userRowMapper)
+        ));
+    }
+
+    public Optional<User> findById(UUID id) {
+        var sql = """
+                SELECT id,
+                       nickname,
+                       password
+                FROM diary.user
+                WHERE id = :id
+                  AND NOT deleted
+                """;
+        return Optional.ofNullable(singleResult(
+                jdbcTemplate.query(sql, Map.of("id", id), userRowMapper)
+        ));
     }
 }
