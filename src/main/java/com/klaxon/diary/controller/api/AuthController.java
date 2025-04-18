@@ -7,10 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -31,7 +30,9 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<JwtResponse> refresh(@RequestBody Map<String, String> request) {
-        return ResponseEntity.ok().body(authService.refresh(request.get("refreshToken")));
+    public ResponseEntity<JwtResponse> refresh(@RequestHeader String authorization) {
+        var refreshToken = (authorization != null && authorization.startsWith("Bearer ")) ?
+                authorization.substring(7) : null;
+        return ResponseEntity.ok().body(authService.refresh(refreshToken));
     }
 }
