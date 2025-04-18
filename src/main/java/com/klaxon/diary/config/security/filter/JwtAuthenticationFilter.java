@@ -1,7 +1,6 @@
 package com.klaxon.diary.config.security.filter;
 
 import com.klaxon.diary.config.security.JwtProvider;
-import com.klaxon.diary.config.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
+import static com.klaxon.diary.util.Constants.ACCESS_TOKEN_HEADER;
 
 @Component
 @RequiredArgsConstructor
@@ -44,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
+        String bearer = request.getHeader(ACCESS_TOKEN_HEADER);
         return (bearer != null && bearer.startsWith("Bearer ")) ? bearer.substring(7) : null;
     }
 }

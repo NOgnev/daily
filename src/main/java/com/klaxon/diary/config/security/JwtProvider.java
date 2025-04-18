@@ -8,7 +8,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.Map;
+
+import static com.klaxon.diary.util.Constants.ACCESS;
+import static com.klaxon.diary.util.Constants.REFRESH;
+import static com.klaxon.diary.util.Constants.TOKEN_TYPE;
 
 @Component
 public class JwtProvider {
@@ -22,24 +25,13 @@ public class JwtProvider {
     @Value("${jwt.refresh-expiration-ms}")
     private long jwtRefreshExpirationMs;
 
+
     public String generateAccessToken(Authentication auth) {
-        return Jwts.builder()
-                .setSubject(auth.getName())
-                .claim("token_type", "access")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS256)
-                .compact();
+        return generateToken(auth, ACCESS, jwtExpirationMs);
     }
 
     public String generateRefreshToken(Authentication auth) {
-        return Jwts.builder()
-                .setSubject(auth.getName())
-                .claim("token_type", "refresh")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtRefreshExpirationMs))
-                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS256)
-                .compact();
+        return generateToken(auth, REFRESH, jwtRefreshExpirationMs);
     }
 
     public String getUsernameFromToken(String token) {
@@ -64,11 +56,21 @@ public class JwtProvider {
     }
 
     public boolean isAccessToken(String token) {
-        return "access".equals(getTokenType(token));
+        return ACCESS.equals(getTokenType(token));
     }
 
     public boolean isRefreshToken(String token) {
-        return true;
+        return REFRESH.equals(getTokenType(token));
+    }
+
+    private String generateToken(Authentication auth, String tokenType, long expirationMs) {
+        return Jwts.builder()
+                .setSubject(auth.getName())
+                .claim(TOKEN_TYPE, tokenType)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private String getTokenType(String token) {
@@ -77,7 +79,6 @@ public class JwtProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get("token_type", String.class);
-
+                .get(TOKEN_TYPE, String.class);
     }
 }
