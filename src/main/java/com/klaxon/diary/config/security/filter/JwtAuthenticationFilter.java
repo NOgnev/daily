@@ -1,7 +1,7 @@
-package com.klaxon.diary.auth.filter;
+package com.klaxon.diary.config.security.filter;
 
-import com.klaxon.diary.auth.JwtProvider;
-import com.klaxon.diary.config.CustomUserDetailsService;
+import com.klaxon.diary.config.security.JwtProvider;
+import com.klaxon.diary.config.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,7 +21,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
 
     @Override
@@ -29,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = getTokenFromRequest(request);
 
-        if (token != null && jwtProvider.validateToken(token)) {
+        if (token != null && jwtProvider.validateToken(token) && jwtProvider.isAccessToken(token)) {
             var username = jwtProvider.getUsernameFromToken(token);
             var userDetails = userDetailsService.loadUserByUsername(username);
             var authToken =

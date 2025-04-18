@@ -1,7 +1,7 @@
-package com.klaxon.diary.config;
+package com.klaxon.diary.config.security;
 
-import com.klaxon.diary.repository.UserRepository;
 import com.klaxon.diary.dto.User;
+import com.klaxon.diary.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

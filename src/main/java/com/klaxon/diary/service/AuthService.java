@@ -1,4 +1,4 @@
-package com.klaxon.diary.auth;
+package com.klaxon.diary.service;
 
 import com.klaxon.diary.dto.User;
 import com.klaxon.diary.repository.UserRepository;
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
