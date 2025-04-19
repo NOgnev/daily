@@ -31,9 +31,9 @@ public class DeviceController {
     }
 
     @DeleteMapping("/{deviceId}")
-    public ResponseEntity<String> revokeDevice(@PathVariable UUID deviceId,
-                                               @AuthenticationPrincipal AuthUser userDetails) {
+    public ResponseEntity<Void> revokeDevice(@PathVariable UUID deviceId,
+                                             @AuthenticationPrincipal AuthUser userDetails) {
         deviceService.revokeDevice(userDetails.id(), deviceId);
-        return ResponseEntity.ok().body("Device revoked successfully");
+        return ResponseEntity.ok().build();
     }
 }

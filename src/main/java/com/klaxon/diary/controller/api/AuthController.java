@@ -26,9 +26,9 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<Void> register(@RequestBody AuthRequest request) {
         authService.register(request.nickname(), request.password());
-        return ResponseEntity.ok().body("User registered successfully");
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")

@@ -1,7 +1,6 @@
 package com.klaxon.diary.service;
 
 import com.klaxon.diary.config.security.JwtProvider;
-import com.klaxon.diary.dto.AuthUser;
 import com.klaxon.diary.dto.RefreshToken;
 import com.klaxon.diary.dto.response.TokensResponse;
 import com.klaxon.diary.repository.RefreshTokenRepository;
@@ -10,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -30,6 +30,7 @@ public class RefreshTokenService {
     @Value("${jwt.max-devices-count}")
     private int maxDevicesCount;
 
+    @Transactional
     public TokensResponse refresh(String requestToken, UUID deviceId) {
         if (requestToken == null) {
             throw new RuntimeException("Refresh token is required");
@@ -50,6 +51,7 @@ public class RefreshTokenService {
         return new TokensResponse(newAccessToken, newRefreshToken);
     }
 
+    @Transactional
     public RefreshToken createRefreshToken(UUID userId, UUID deviceId) {
         List<RefreshToken> allByUserId = refreshTokenRepository.findAllByUserId(userId);
         if (allByUserId.size() > maxDevicesCount) {
@@ -66,6 +68,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(token);
     }
 
+    @Transactional
     private RefreshToken validateRefreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Refresh token not found"));
