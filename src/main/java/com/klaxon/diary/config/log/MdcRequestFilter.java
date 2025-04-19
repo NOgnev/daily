@@ -14,14 +14,13 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
+import static com.klaxon.diary.util.Headers.SERVER_TIME_HEADER;
+import static com.klaxon.diary.util.Headers.TRACE_ID_HEADER;
 import static com.klaxon.diary.util.MdcKey.TRACE_ID;
 
 @Component
 @Order(Integer.MIN_VALUE)
 public class MdcRequestFilter extends OncePerRequestFilter {
-
-    private static final String TRACE_ID_HEADER = "x-trace-id";
-    private static final String SERVER_TIME_HEADER = "x-server-time";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -36,14 +35,8 @@ public class MdcRequestFilter extends OncePerRequestFilter {
         }
     }
 
-
     private void populateResponseWithHeaders(HttpServletResponse response) {
         response.addHeader(TRACE_ID_HEADER, MDC.get(TRACE_ID));
-        response.addHeader(SERVER_TIME_HEADER, getTime());
+        response.addHeader(SERVER_TIME_HEADER, OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS).toString());
     }
-
-    private String getTime() {
-        return OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS).toString();
-    }
-
 }

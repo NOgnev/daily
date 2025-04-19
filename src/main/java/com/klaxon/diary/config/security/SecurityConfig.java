@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -21,7 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -38,7 +39,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint()))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint())
+                        .accessDeniedHandler(accessDeniedHandler()))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -57,13 +60,21 @@ public class SecurityConfig {
         return source;
     }
 
-    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
+        return (request, response, e) -> {
+            response.getWriter()
+                    .write(new ObjectMapper().writeValueAsString(new ErrorResponse(UNAUTHORIZED.getReasonPhrase(), e.getMessage())));
+            response.setContentType("application/json");
+            response.setStatus(UNAUTHORIZED.value());
+        };
+    }
+
     public AuthenticationEntryPoint authenticationEntryPoint() {
-        return (httpServletRequest, httpServletResponse, e) -> {
-            httpServletResponse.getWriter()
-                    .write(new ObjectMapper().writeValueAsString(new ErrorResponse("Error", e.getMessage())));
-            httpServletResponse.setContentType("application/json");
-            httpServletResponse.setStatus(INTERNAL_SERVER_ERROR.value());
+        return (httpServletRequest, response, e) -> {
+            response.getWriter()
+                    .write(new ObjectMapper().writeValueAsString(new ErrorResponse(UNAUTHORIZED.getReasonPhrase(), e.getMessage())));
+            response.setContentType("application/json");
+            response.setStatus(UNAUTHORIZED.value());
         };
     }
 
