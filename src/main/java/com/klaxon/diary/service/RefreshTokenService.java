@@ -44,14 +44,14 @@ public class RefreshTokenService {
         var userDetails = userRepository.findById(refreshToken.userId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        var newRefreshToken = createRefreshToken(userDetails, deviceId).token();
+        var newRefreshToken = createRefreshToken(refreshToken.userId(), deviceId).token();
         var newAccessToken = jwtProvider.generateAccessToken(userDetails);
 
         return new TokensResponse(newAccessToken, newRefreshToken);
     }
 
-    public RefreshToken createRefreshToken(AuthUser user, UUID deviceId) {
-        List<RefreshToken> allByUserId = refreshTokenRepository.findAllByUserId(user.id());
+    public RefreshToken createRefreshToken(UUID userId, UUID deviceId) {
+        List<RefreshToken> allByUserId = refreshTokenRepository.findAllByUserId(userId);
         if (allByUserId.size() > maxDevicesCount) {
             throw new RuntimeException("Too many refresh tokens");
         }
@@ -60,7 +60,7 @@ public class RefreshTokenService {
                 .findFirst()
                 .ifPresent(token -> refreshTokenRepository.delete(token.userId(), token.device().id()));
 
-        RefreshToken token = new RefreshToken(user.id(), UUID.randomUUID().toString(),
+        RefreshToken token = new RefreshToken(userId, UUID.randomUUID().toString(),
                 new RefreshToken.Device(deviceId, Instant.now().plusMillis(jwtRefreshExpirationMs)));
 
         return refreshTokenRepository.save(token);

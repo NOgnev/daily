@@ -44,7 +44,7 @@ public class AuthService {
         AuthUser user = (AuthUser) auth.getPrincipal();
         MDC.put(USER_ID, user.id().toString());
         String accessToken = jwtProvider.generateAccessToken(user);
-        String refreshToken = refreshTokenService.createRefreshToken(user, deviceId).token();
+        String refreshToken = refreshTokenService.createRefreshToken(user.id(), deviceId).token();
 
         return new TokensResponse(accessToken, refreshToken);
     }
