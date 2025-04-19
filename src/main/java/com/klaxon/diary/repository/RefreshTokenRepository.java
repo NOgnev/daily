@@ -69,4 +69,12 @@ public class RefreshTokenRepository {
                 """;
         jdbcTemplate.update(sql, Map.of("userId", userId, "deviceId", deviceId));
     }
+
+    public void deleteExpired() {
+        var sql = """
+                DELETE FROM diary.refresh_token
+                WHERE expiry_date < now()
+                """;
+        jdbcTemplate.update(sql, Map.of());
+    }
 }

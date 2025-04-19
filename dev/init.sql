@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS diary.refresh_token (
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_refresh_token_token ON diary.refresh_token (token);
 CREATE INDEX IF NOT EXISTS idx_refresh_token_user_id ON diary.refresh_token (user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_token_expiry_date ON diary.refresh_token (expiry_date);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_refresh_token_user_id_device_id ON diary.refresh_token (user_id, device_id);
 
 ALTER TABLE diary.refresh_token
