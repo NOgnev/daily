@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,18 +36,18 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokensHolder> login(@RequestHeader("X_DEVICE_ID") String deviceId,
+    public ResponseEntity<TokensHolder> login(@RequestHeader("X_DEVICE_ID") UUID deviceId,
                                               @RequestBody AuthRequest request) {
         return ResponseEntity.ok().body(authService.login(request, deviceId));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokensHolder> refresh(@RequestHeader("X_DEVICE_ID") String deviceId,
+    public ResponseEntity<TokensHolder> refresh(@RequestHeader("X_DEVICE_ID") UUID deviceId,
                                                 @RequestBody TokensHolder request) {
         return ResponseEntity.ok().body(authService.refresh(request.refreshToken(), deviceId));
     }
 
-    @GetMapping("/devices")
+    @GetMapping("/device")
     public ResponseEntity<List<Device>> getDevices(@AuthenticationPrincipal UserDetails userDetails) {
         var list = refreshTokenService.getDevices(userDetails.getUsername()).stream()
                 .map(d -> new Device(d.deviceId(), d.expiryDate().toString()))
@@ -54,8 +55,8 @@ public class AuthController {
         return ResponseEntity.ok().body(list);
     }
 
-    @DeleteMapping("/devices/{deviceId}")
-    public ResponseEntity<String> revokeDevice(@PathVariable String deviceId,
+    @DeleteMapping("/device/{deviceId}")
+    public ResponseEntity<String> revokeDevice(@PathVariable UUID deviceId,
                                                @AuthenticationPrincipal UserDetails userDetails) {
         refreshTokenService.revokeDevice(userDetails.getUsername(), deviceId);
         return ResponseEntity.ok().body("Device revoked successfully");

@@ -61,7 +61,7 @@ public class RefreshTokenRepository {
                 refreshTokenRowMapper);
     }
 
-    public void delete(UUID userId, String deviceId) {
+    public void delete(UUID userId, UUID deviceId) {
         var sql = """
                 DELETE FROM diary.refresh_token
                 WHERE user_id = :userId

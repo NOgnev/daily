@@ -33,7 +33,7 @@ public class AuthService {
         return userRepository.save(new User(UUID.randomUUID(), nickname, passwordEncoder.encode(password)));
     }
 
-    public TokensHolder login(AuthRequest request, String deviceId) {
+    public TokensHolder login(AuthRequest request, UUID deviceId) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.nickname(), request.password())
         );
@@ -44,7 +44,7 @@ public class AuthService {
         return new TokensHolder(accessToken, refreshToken);
     }
 
-    public TokensHolder refresh(String requestToken, String deviceId) {
+    public TokensHolder refresh(String requestToken, UUID deviceId) {
         if (requestToken == null) {
             throw new RuntimeException("Refresh token is required");
         }

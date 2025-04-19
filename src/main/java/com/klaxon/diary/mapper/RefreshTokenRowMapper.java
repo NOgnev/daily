@@ -19,7 +19,7 @@ public class RefreshTokenRowMapper implements RowMapper<RefreshToken> {
         return new RefreshToken(
                 UUID.fromString(rs.getString("user_id")),
                 rs.getString("token"),
-                rs.getString("device_id"),
+                UUID.fromString(rs.getString("device_id")),
                 rs.getTimestamp("expiry_date").toInstant()
         );
     }

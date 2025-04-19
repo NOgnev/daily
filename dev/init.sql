@@ -41,7 +41,7 @@ GRANT SELECT, INSERT, UPDATE ON diary.user TO diary;
 CREATE TABLE IF NOT EXISTS diary.refresh_token (
     user_id UUID NOT NULL REFERENCES diary.user (id),
     token VARCHAR(255) UNIQUE NOT NULL,
-    device_id VARCHAR(255) NOT NULL,
+    device_id UUID NOT NULL,
     expiry_date TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

@@ -24,7 +24,7 @@ public class RefreshTokenService {
     @Value("${jwt.max-devices-count}")
     private int maxDevicesCount;
 
-    public RefreshToken createRefreshToken(String username, String deviceId) {
+    public RefreshToken createRefreshToken(String username, UUID deviceId) {
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -56,7 +56,7 @@ public class RefreshTokenService {
         return refreshToken;
     }
 
-    public void revokeDevice(String username, String deviceId) {
+    public void revokeDevice(String username, UUID deviceId) {
         User user = userRepository.findByNickname(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 

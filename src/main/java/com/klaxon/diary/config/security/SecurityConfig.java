@@ -62,6 +62,7 @@ public class SecurityConfig {
         return (httpServletRequest, httpServletResponse, e) -> {
             httpServletResponse.getWriter()
                     .write(new ObjectMapper().writeValueAsString(new ErrorResponse("Error", e.getMessage())));
+            httpServletResponse.setContentType("application/json");
             httpServletResponse.setStatus(INTERNAL_SERVER_ERROR.value());
         };
     }

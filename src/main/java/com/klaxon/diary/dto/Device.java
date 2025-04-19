@@ -1,4 +1,6 @@
 package com.klaxon.diary.dto;
 
-public record Device(String deviceId, String expiryDate) { }
+import java.util.UUID;
+
+public record Device(UUID id, String expiryDate) { }
 
