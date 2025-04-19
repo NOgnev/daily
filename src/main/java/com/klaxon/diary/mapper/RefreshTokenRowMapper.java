@@ -13,14 +13,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RefreshTokenRowMapper implements RowMapper<RefreshToken> {
 
-
     @Override
     public RefreshToken mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new RefreshToken(
                 UUID.fromString(rs.getString("user_id")),
                 rs.getString("token"),
-                UUID.fromString(rs.getString("device_id")),
-                rs.getTimestamp("expiry_date").toInstant()
+                new RefreshToken.Device(
+                        UUID.fromString(rs.getString("device_id")),
+                        rs.getTimestamp("expiry_date").toInstant()
+                )
         );
     }
 }

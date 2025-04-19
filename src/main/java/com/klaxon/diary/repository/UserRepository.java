@@ -1,6 +1,6 @@
 package com.klaxon.diary.repository;
 
-import com.klaxon.diary.dto.User;
+import com.klaxon.diary.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -17,21 +17,21 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
 public class UserRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final RowMapper<User> userRowMapper;
+    private final RowMapper<AuthUser> userRowMapper;
 
 
-    public User save(User user) {
+    public AuthUser save(AuthUser authUser) {
         var sql = """
                 INSERT INTO diary.user (id, nickname, password)
                 VALUES (:id, :nickname, :password)
                 RETURNING id, nickname, password
                 """;
         return jdbcTemplate.queryForObject(sql,
-                Map.of("id", user.id(), "nickname", user.nickname(), "password", user.password()),
+                Map.of("id", authUser.id(), "nickname", authUser.nickname(), "password", authUser.password()),
                 userRowMapper);
     }
 
-    public Optional<User> findByNickname(String nickname) {
+    public Optional<AuthUser> findByNickname(String nickname) {
         var sql = """
                 SELECT id,
                        nickname,
@@ -45,7 +45,7 @@ public class UserRepository {
         ));
     }
 
-    public Optional<User> findById(UUID id) {
+    public Optional<AuthUser> findById(UUID id) {
         var sql = """
                 SELECT id,
                        nickname,

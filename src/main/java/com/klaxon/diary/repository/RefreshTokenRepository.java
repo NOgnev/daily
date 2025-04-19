@@ -56,8 +56,8 @@ public class RefreshTokenRepository {
         return jdbcTemplate.queryForObject(sql,
                 Map.of("userId", token.userId(),
                         "token", token.token(),
-                        "deviceId", token.deviceId(),
-                        "expiryDate", Timestamp.from(token.expiryDate())),
+                        "deviceId", token.device().id(),
+                        "expiryDate", Timestamp.from(token.device().expiryDate())),
                 refreshTokenRowMapper);
     }
 

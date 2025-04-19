@@ -9,7 +9,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorResponse> handle(Exception e) {
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ErrorResponse("Error", e.getMessage()));
     }

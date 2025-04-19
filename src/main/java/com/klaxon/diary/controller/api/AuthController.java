@@ -1,25 +1,21 @@
 package com.klaxon.diary.controller.api;
 
-import com.klaxon.diary.dto.AuthRequest;
-import com.klaxon.diary.dto.Device;
-import com.klaxon.diary.dto.TokensHolder;
+import com.klaxon.diary.dto.request.AuthRequest;
+import com.klaxon.diary.dto.request.RefreshTokenRequest;
+import com.klaxon.diary.dto.response.TokensResponse;
 import com.klaxon.diary.service.AuthService;
 import com.klaxon.diary.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
+
+import static com.klaxon.diary.util.Headers.DEVICE_ID_HEADER;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,29 +32,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokensHolder> login(@RequestHeader("X_DEVICE_ID") UUID deviceId,
-                                              @RequestBody AuthRequest request) {
+    public ResponseEntity<TokensResponse> login(@RequestHeader(DEVICE_ID_HEADER) UUID deviceId,
+                                                @RequestBody AuthRequest request) {
         return ResponseEntity.ok().body(authService.login(request, deviceId));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokensHolder> refresh(@RequestHeader("X_DEVICE_ID") UUID deviceId,
-                                                @RequestBody TokensHolder request) {
-        return ResponseEntity.ok().body(authService.refresh(request.refreshToken(), deviceId));
-    }
-
-    @GetMapping("/device")
-    public ResponseEntity<List<Device>> getDevices(@AuthenticationPrincipal UserDetails userDetails) {
-        var list = refreshTokenService.getDevices(userDetails.getUsername()).stream()
-                .map(d -> new Device(d.deviceId(), d.expiryDate().toString()))
-                .toList();
-        return ResponseEntity.ok().body(list);
-    }
-
-    @DeleteMapping("/device/{deviceId}")
-    public ResponseEntity<String> revokeDevice(@PathVariable UUID deviceId,
-                                               @AuthenticationPrincipal UserDetails userDetails) {
-        refreshTokenService.revokeDevice(userDetails.getUsername(), deviceId);
-        return ResponseEntity.ok().body("Device revoked successfully");
+    public ResponseEntity<TokensResponse> refresh(@RequestHeader(DEVICE_ID_HEADER) UUID deviceId,
+                                                  @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok().body(refreshTokenService.refresh(request.refreshToken(), deviceId));
     }
 }
