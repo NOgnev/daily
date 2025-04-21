@@ -1,6 +1,7 @@
 package com.klaxon.diary.service;
 
 import com.klaxon.diary.config.log.Log;
+import com.klaxon.diary.config.log.hidden.Hidden;
 import com.klaxon.diary.config.security.JwtProvider;
 import com.klaxon.diary.dto.AuthUser;
 import com.klaxon.diary.dto.request.AuthRequest;
