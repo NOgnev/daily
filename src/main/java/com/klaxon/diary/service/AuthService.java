@@ -44,7 +44,11 @@ public class AuthService {
         }
         UUID userId = UUID.randomUUID();
         MDC.put(USER_ID, userId.toString());
-        return userRepository.save(new AuthUser(userId, nickname, passwordEncoder.encode(password)));
+        return userRepository.save(AuthUser.builder()
+                .id(userId)
+                .nickname(nickname)
+                .password(passwordEncoder.encode(password))
+                .build());
     }
 
     @Log

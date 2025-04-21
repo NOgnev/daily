@@ -15,10 +15,10 @@ public class UserRowMapper implements RowMapper<AuthUser> {
 
     @Override
     public AuthUser mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new AuthUser(
-                UUID.fromString(rs.getString("id")),
-                rs.getString("nickname"),
-                rs.getString("password")
-        );
+        return AuthUser.builder()
+                .id(UUID.fromString(rs.getString("id")))
+                .nickname(rs.getString("nickname"))
+                .password(rs.getString("password"))
+                .build();
     }
 }

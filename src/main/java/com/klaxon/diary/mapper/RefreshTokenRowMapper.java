@@ -15,13 +15,13 @@ public class RefreshTokenRowMapper implements RowMapper<RefreshToken> {
 
     @Override
     public RefreshToken mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new RefreshToken(
-                UUID.fromString(rs.getString("user_id")),
-                rs.getString("token"),
-                new RefreshToken.Device(
-                        UUID.fromString(rs.getString("device_id")),
-                        rs.getTimestamp("expiry_date").toInstant()
-                )
-        );
+        return RefreshToken.builder()
+                .userId(UUID.fromString(rs.getString("user_id")))
+                .token(rs.getString("token"))
+                .device(RefreshToken.Device.builder()
+                        .id(UUID.fromString(rs.getString("device_id")))
+                        .expiryDate(rs.getTimestamp("expiry_date").toInstant())
+                        .build())
+                .build();
     }
 }

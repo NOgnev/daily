@@ -1,6 +1,7 @@
 package com.klaxon.diary.dto;
 
 import com.klaxon.diary.config.log.hidden.Hidden;
+import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.UUID;
 
+@Builder
 public record AuthUser(UUID id, String nickname, @Hidden String password) implements UserDetails {
 
     @Override
