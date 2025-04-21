@@ -1,6 +1,7 @@
 package com.klaxon.diary.error;
 
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
@@ -22,13 +23,14 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ErrorResponse> appException(AppException e) {
         ErrorRegistry exceptionError = e.getError();
+        HttpStatusCode statusCode = INTERNAL_SERVER_ERROR;
         String error = INTERNAL_SERVER_ERROR.name();
         String message = INTERNAL_SERVER_ERROR.getReasonPhrase();
         if (exceptionError != null) {
             error = exceptionError.name();
             message = exceptionError.getMessage();
         }
-        return ResponseEntity.status(e.getHttpStatus()).body(new ErrorResponse(error, message));
+        return ResponseEntity.status(e.getHttpStatus() != null ? e.getHttpStatus() : statusCode).body(new ErrorResponse(error, message));
     }
 
     @ExceptionHandler(AuthenticationException.class)
