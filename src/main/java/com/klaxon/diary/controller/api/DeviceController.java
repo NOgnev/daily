@@ -1,5 +1,6 @@
 package com.klaxon.diary.controller.api;
 
+import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.dto.AuthUser;
 import com.klaxon.diary.dto.RefreshToken.Device;
 import com.klaxon.diary.service.DeviceService;
@@ -23,6 +24,7 @@ public class DeviceController {
     private final DeviceService deviceService;
 
     @GetMapping
+    @Log(logResult = false)
     public ResponseEntity<List<Device>> getDevices(@AuthenticationPrincipal AuthUser userDetails) {
         var list = deviceService.getDevices(userDetails.id()).stream()
                 .map(d -> new Device(d.device().id(), d.device().expiryDate()))

@@ -1,3 +1,5 @@
 package com.klaxon.diary.dto.response;
 
-public record TokensResponse(String accessToken, String refreshToken) {}
+import com.klaxon.diary.config.log.hidden.Hidden;
+
+public record TokensResponse(@Hidden String accessToken, @Hidden String refreshToken) {}

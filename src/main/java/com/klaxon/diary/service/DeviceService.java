@@ -15,7 +15,6 @@ public class DeviceService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-
     @Transactional
     public void revokeDevice(UUID userId, UUID deviceId) {
         refreshTokenRepository.delete(userId, deviceId);

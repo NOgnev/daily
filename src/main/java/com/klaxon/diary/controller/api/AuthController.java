@@ -1,5 +1,7 @@
 package com.klaxon.diary.controller.api;
 
+import com.klaxon.diary.config.log.Log;
+import com.klaxon.diary.config.log.hidden.Hidden;
 import com.klaxon.diary.dto.request.AuthRequest;
 import com.klaxon.diary.dto.request.RefreshTokenRequest;
 import com.klaxon.diary.dto.response.TokensResponse;
@@ -25,18 +27,21 @@ public class AuthController {
     private final AuthService authService;
     private final RefreshTokenService refreshTokenService;
 
+    @Log
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody AuthRequest request) {
         authService.register(request.nickname(), request.password());
         return ResponseEntity.ok().build();
     }
 
+    @Log
     @PostMapping("/login")
     public ResponseEntity<TokensResponse> login(@RequestHeader(DEVICE_ID_HEADER) UUID deviceId,
                                                 @RequestBody AuthRequest request) {
         return ResponseEntity.ok().body(authService.login(request, deviceId));
     }
 
+    @Log
     @PostMapping("/refresh")
     public ResponseEntity<TokensResponse> refresh(@RequestHeader(DEVICE_ID_HEADER) UUID deviceId,
                                                   @RequestBody RefreshTokenRequest request) {

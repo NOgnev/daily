@@ -1,4 +1,4 @@
-package com.klaxon.diary.config.log;
+package com.klaxon.diary.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

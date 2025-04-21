@@ -19,9 +19,21 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ErrorResponse> appException(AppException e) {
+        ErrorRegistry exceptionError = e.getError();
+        String error = INTERNAL_SERVER_ERROR.name();
+        String message = INTERNAL_SERVER_ERROR.getReasonPhrase();
+        if (exceptionError != null) {
+            error = exceptionError.name();
+            message = exceptionError.getMessage();
+        }
+        return ResponseEntity.status(e.getHttpStatus()).body(new ErrorResponse(error, message));
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> unauthorizedError(Throwable t) {
-        return ResponseEntity.status(UNAUTHORIZED).body(new ErrorResponse(UNAUTHORIZED.getReasonPhrase(), t.getMessage()));
+        return ResponseEntity.status(UNAUTHORIZED).body(new ErrorResponse(UNAUTHORIZED.name(), t.getMessage()));
     }
 
     @ExceptionHandler({
@@ -34,12 +46,12 @@ public class ExceptionHandlerAdvice {
             BindException.class
     })
     public ResponseEntity<ErrorResponse> badRequestError(Throwable t) {
-        return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.getReasonPhrase(), t.getMessage()));
+        return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), t.getMessage()));
     }
 
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorResponse> handle(Throwable t) {
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ErrorResponse("Error", t.getMessage()));
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ErrorResponse(INTERNAL_SERVER_ERROR.name(), t.getMessage()));
     }
 }

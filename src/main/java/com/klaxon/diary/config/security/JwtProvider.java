@@ -1,5 +1,7 @@
 package com.klaxon.diary.config.security;
 
+import com.klaxon.diary.config.log.Log;
+import com.klaxon.diary.config.log.hidden.Hidden;
 import com.klaxon.diary.dto.AuthUser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -40,7 +42,8 @@ public class JwtProvider {
         );
     }
 
-    public boolean validateToken(String token) {
+    @Log
+    public boolean validateToken(@Hidden String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(jwtSecret.getBytes())
