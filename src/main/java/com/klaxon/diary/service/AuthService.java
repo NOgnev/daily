@@ -33,7 +33,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Log
-    public AuthUser register(String nickname, String password) {
+    public AuthUser register(String nickname, @Hidden String password) {
         if (userRepository.findByNickname(nickname).isPresent()) {
             throw AppException.builder()
                     .httpStatus(UNPROCESSABLE_ENTITY)

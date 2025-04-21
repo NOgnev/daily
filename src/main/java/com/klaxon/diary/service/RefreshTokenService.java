@@ -1,5 +1,6 @@
 package com.klaxon.diary.service;
 
+import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.config.security.JwtProvider;
 import com.klaxon.diary.dto.RefreshToken;
 import com.klaxon.diary.dto.response.TokensResponse;
@@ -34,6 +35,7 @@ public class RefreshTokenService {
     @Value("${jwt.max-devices-count}")
     private int maxDevicesCount;
 
+    @Log
     @Transactional
     public TokensResponse refresh(String requestToken, UUID deviceId) {
         if (requestToken == null) {
@@ -66,6 +68,7 @@ public class RefreshTokenService {
         return new TokensResponse(newAccessToken, newRefreshToken);
     }
 
+    @Log
     @Transactional
     public RefreshToken createRefreshToken(UUID userId, UUID deviceId) {
         List<RefreshToken> allByUserId = refreshTokenRepository.findAllByUserId(userId);
@@ -87,6 +90,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(token);
     }
 
+    @Log
     @Transactional
     private RefreshToken validateRefreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)

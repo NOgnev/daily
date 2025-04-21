@@ -1,5 +1,6 @@
 package com.klaxon.diary.repository;
 
+import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.dto.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,7 +20,7 @@ public class UserRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final RowMapper<AuthUser> userRowMapper;
 
-
+    @Log
     public AuthUser save(AuthUser authUser) {
         var sql = """
                 INSERT INTO diary.user (id, nickname, password)
@@ -31,6 +32,7 @@ public class UserRepository {
                 userRowMapper);
     }
 
+    @Log
     public Optional<AuthUser> findByNickname(String nickname) {
         var sql = """
                 SELECT id,
@@ -45,6 +47,7 @@ public class UserRepository {
         ));
     }
 
+    @Log
     public Optional<AuthUser> findById(UUID id) {
         var sql = """
                 SELECT id,

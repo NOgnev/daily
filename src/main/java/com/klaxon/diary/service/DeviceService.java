@@ -1,5 +1,6 @@
 package com.klaxon.diary.service;
 
+import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.dto.RefreshToken;
 import com.klaxon.diary.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +16,13 @@ public class DeviceService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Log
     @Transactional
     public void revokeDevice(UUID userId, UUID deviceId) {
         refreshTokenRepository.delete(userId, deviceId);
     }
 
+    @Log
     @Transactional(readOnly = true)
     public List<RefreshToken> getDevices(UUID userId) {
         return refreshTokenRepository.findAllByUserId(userId);

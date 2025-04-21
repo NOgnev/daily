@@ -23,8 +23,8 @@ public class DeviceController {
 
     private final DeviceService deviceService;
 
-    @GetMapping
     @Log(logResult = false)
+    @GetMapping
     public ResponseEntity<List<Device>> getDevices(@AuthenticationPrincipal AuthUser userDetails) {
         var list = deviceService.getDevices(userDetails.id()).stream()
                 .map(d -> new Device(d.device().id(), d.device().expiryDate()))
@@ -32,6 +32,7 @@ public class DeviceController {
         return ResponseEntity.ok().body(list);
     }
 
+    @Log
     @DeleteMapping("/{deviceId}")
     public ResponseEntity<Void> revokeDevice(@PathVariable UUID deviceId,
                                              @AuthenticationPrincipal AuthUser userDetails) {

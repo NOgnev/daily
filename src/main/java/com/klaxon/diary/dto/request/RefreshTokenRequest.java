@@ -1,4 +1,6 @@
 package com.klaxon.diary.dto.request;
 
-public record RefreshTokenRequest(String refreshToken) {
+import com.klaxon.diary.config.log.hidden.Hidden;
+
+public record RefreshTokenRequest(@Hidden String refreshToken) {
 }

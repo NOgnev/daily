@@ -1,5 +1,7 @@
 package com.klaxon.diary.repository;
 
+import com.klaxon.diary.config.log.Log;
+import com.klaxon.diary.config.log.hidden.Hidden;
 import com.klaxon.diary.dto.RefreshToken;
 import com.klaxon.diary.mapper.RefreshTokenRowMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class RefreshTokenRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final RefreshTokenRowMapper refreshTokenRowMapper;
 
+    @Log
     public List<RefreshToken> findAllByUserId(UUID userId) {
         var sql = """
                 SELECT user_id,
@@ -33,7 +36,8 @@ public class RefreshTokenRepository {
         return jdbcTemplate.query(sql, Map.of("userId", userId), refreshTokenRowMapper);
     }
 
-    public Optional<RefreshToken> findByToken(String token) {
+    @Log
+    public Optional<RefreshToken> findByToken(@Hidden String token) {
         var sql = """
                 SELECT user_id,
                        token,
@@ -47,6 +51,7 @@ public class RefreshTokenRepository {
         ));
     }
 
+    @Log
     public RefreshToken save(RefreshToken token) {
         var sql = """
                 INSERT INTO diary.refresh_token (user_id, token, device_id, expiry_date)
@@ -61,6 +66,7 @@ public class RefreshTokenRepository {
                 refreshTokenRowMapper);
     }
 
+    @Log
     public void delete(UUID userId, UUID deviceId) {
         var sql = """
                 DELETE FROM diary.refresh_token
@@ -70,6 +76,7 @@ public class RefreshTokenRepository {
         jdbcTemplate.update(sql, Map.of("userId", userId, "deviceId", deviceId));
     }
 
+    @Log
     public void deleteExpired() {
         var sql = """
                 DELETE FROM diary.refresh_token

@@ -1,5 +1,6 @@
 package com.klaxon.diary.config;
 
+import com.klaxon.diary.config.log.Log;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
