@@ -46,17 +46,17 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-//tasks.register('buildFrontend', Exec) {
-//	workingDir "$projectDir/frontend"
-//	commandLine '/usr/local/bin/npm', 'run', 'build'
-//}
-//
-//processResources.dependsOn buildFrontend
-//
-//tasks.register('copyFrontend', Copy) {
-//	dependsOn buildFrontend
-//	from "$projectDir/frontend/build"
-//	into "$buildDir/resources/main/static"
-//}
-//
-//processResources.dependsOn copyFrontend
+tasks.register('buildFrontend', Exec) {
+	workingDir "$projectDir/frontend"
+	commandLine '/usr/local/bin/npm', 'run', 'build'
+}
+
+processResources.dependsOn buildFrontend
+
+tasks.register('copyFrontend', Copy) {
+	dependsOn buildFrontend
+	from "$projectDir/frontend/build"
+	into "$buildDir/resources/main/static"
+}
+
+processResources.dependsOn copyFrontend

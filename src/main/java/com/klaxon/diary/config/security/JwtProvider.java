@@ -6,11 +6,15 @@ import com.klaxon.diary.dto.AuthUser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.UUID;
+
+import static com.klaxon.diary.util.BearerUtil.getBearer;
+import static com.klaxon.diary.util.Headers.ACCESS_TOKEN_HEADER;
 
 @Component
 public class JwtProvider {
@@ -53,5 +57,11 @@ public class JwtProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Log(logArgs = false, logResult = false)
+    public String getTokenFromRequest(HttpServletRequest request) {
+        String bearer = request.getHeader(ACCESS_TOKEN_HEADER);
+        return getBearer(bearer);
     }
 }

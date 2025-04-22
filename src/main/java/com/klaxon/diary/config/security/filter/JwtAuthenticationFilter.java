@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import static com.klaxon.diary.error.ErrorRegistry.USER_NOT_FOUND;
-import static com.klaxon.diary.util.BearerUtil.getBearer;
-import static com.klaxon.diary.util.Headers.ACCESS_TOKEN_HEADER;
 import static com.klaxon.diary.util.MdcKey.USER_ID;
 
 @Component
@@ -36,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        String token = getTokenFromRequest(request);
+        String token = jwtProvider.getTokenFromRequest(request);
 
         if (token != null && jwtProvider.validateToken(token)) {
             var userId = jwtProvider.getUserIdFromToken(token);
@@ -55,10 +53,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         chain.doFilter(request, response);
-    }
-
-    private String getTokenFromRequest(HttpServletRequest request) {
-        String bearer = request.getHeader(ACCESS_TOKEN_HEADER);
-        return getBearer(bearer);
     }
 }
