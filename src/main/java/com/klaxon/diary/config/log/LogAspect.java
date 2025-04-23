@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.klaxon.diary.util.MdcKey.OPERATION_NAME;
 import static com.klaxon.diary.util.MdcKey.TRACE_ID;
 import static com.klaxon.diary.util.MdcKey.USER_ID;
 
@@ -33,6 +34,7 @@ public class LogAspect {
         }
         String traceId = Optional.ofNullable(MDC.get(TRACE_ID)).orElse("unknown");
         String userId = Optional.ofNullable(MDC.get(USER_ID)).orElse("anonymous");
+        String operationName = Optional.ofNullable(MDC.get(OPERATION_NAME)).orElse("unknown");
 
         if (logAnnotation.logArgs()) {
             Object[] args = joinPoint.getArgs();
@@ -47,9 +49,9 @@ public class LogAspect {
                     sanitizedArgs.put(argName, Sanitizer.toJson(args[i]));
                 }
             }
-            log.info("[traceId={}, userId={}] → {} with arguments: {}", traceId, userId, methodName, sanitizedArgs);
+            log.info("[traceId={}, userId={}, operationName={}] → {} with arguments: {}", traceId, userId, operationName, methodName, sanitizedArgs);
         } else {
-            log.info("[traceId={}, userId={}] → {}", traceId, userId, methodName);
+            log.info("[traceId={}, userId={}, operationName={}] → {}", traceId, userId, operationName, methodName);
         }
         long start = System.currentTimeMillis();
         try {
@@ -59,9 +61,9 @@ public class LogAspect {
             userId = Optional.ofNullable(MDC.get(USER_ID)).orElse("anonymous");
             if (logAnnotation.logResult()) {
                 String resultStr = Sanitizer.toJson(result);
-                log.info("[traceId={}, userId={}] ← {} with result: {}. Execution time: {} ms", traceId, userId, methodName, resultStr, executionTime);
+                log.info("[traceId={}, userId={}, operationName={}] ← {} with result: {}. Execution time: {} ms", traceId, userId, operationName, methodName, resultStr, executionTime);
             } else {
-                log.info("[traceId={}, userId={}] ← {}. Execution time: {} ms", traceId, userId, methodName, executionTime);
+                log.info("[traceId={}, userId={}, operationName={}] ← {}. Execution time: {} ms", traceId, userId, operationName, methodName, executionTime);
             }
             return result;
         } catch (Throwable t) {
@@ -69,7 +71,7 @@ public class LogAspect {
             traceId = Optional.ofNullable(MDC.get(TRACE_ID)).orElse("unknown");
             userId = Optional.ofNullable(MDC.get(USER_ID)).orElse("anonymous");
             if (logAnnotation.logError()) {
-                log.error("[traceId={}, userId={}] ✖ {} threw an exception: {}. Message: {}. Execution time: {} ms", traceId, userId, methodName, t.getClass().getName(), t.getMessage(), executionTime);
+                log.error("[traceId={}, userId={}, operationName={}] ✖ {} threw an exception: {}. Message: {}. Execution time: {} ms", traceId, userId, operationName, methodName, t.getClass().getName(), t.getMessage(), executionTime);
             }
             throw t;
         }

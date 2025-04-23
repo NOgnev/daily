@@ -2,7 +2,7 @@ import { Container } from 'react-bootstrap';
 import { Outlet } from 'react-router-dom';
 import Header from './Header';
 
-function Layout() {
+const Layout = () => {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Header />
@@ -11,7 +11,6 @@ function Layout() {
       </Container>
     </div>
   );
-}
+};
 
 export default Layout;
-

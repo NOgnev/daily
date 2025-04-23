@@ -1,18 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { CookiesProvider } from 'react-cookie';
 import './index.css';
 import App from './App';
 import 'react-bootstrap/dist/react-bootstrap.min.js'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import reportWebVitals from './reportWebVitals';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <CookiesProvider>
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
+    </CookiesProvider>
   </React.StrictMode>
 );
 
