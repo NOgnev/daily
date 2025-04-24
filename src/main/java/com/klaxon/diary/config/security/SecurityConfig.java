@@ -40,10 +40,18 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/index.html",
-                                "/favicon.ico"
+                                "/favicon.ico",
+                                "/manifest.json",
+                                "/asset-manifest.json",
+                                "/logo192.png",
+                                "/logo512.png",
+                                "/robots.txt"
                         ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/test/**").permitAll()
+                        .requestMatchers("/profile").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/register").permitAll()
+                        .requestMatchers("/about").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
@@ -56,7 +64,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000"));
+        config.setAllowedOrigins(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

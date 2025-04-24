@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Form, Button, Container, Card, Alert, Spinner } from 'react-bootstrap';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -18,7 +17,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register({ email, password, name });
+      await register({ nickname, password });
       navigate('/profile');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
@@ -34,24 +33,13 @@ const Register = () => {
           <h2 className="text-center mb-4">Create Account</h2>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formName">
-              <Form.Label>Full Name</Form.Label>
+            <Form.Group className="mb-3" controlId="formNickname">
+              <Form.Label>Nickname</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
                 required
               />
             </Form.Group>

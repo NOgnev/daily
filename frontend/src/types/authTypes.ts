@@ -1,12 +1,12 @@
 // Типы для данных аутентификации
 export interface LoginData {
-  email: string;
+  nickname: string;
   password: string;
 }
 
-export interface RegisterData extends LoginData {
-  name: string;
-}
+// export interface RegisterData extends LoginData {
+//   name: string;
+// }
 
 export interface AuthResponse {
   accessToken: string;
@@ -32,7 +32,7 @@ export interface AuthContextType {
   user: AuthUser | null;
   isAuthenticated: boolean | null;
   login: (data: LoginData) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  register: (data: LoginData) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }

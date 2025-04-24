@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { useAuth } from './hooks/useAuth'
+import { useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
 import PrivateRoute from './components/PrivateRoute'
 import PublicOnlyRoute from './components/PublicOnlyRoute'

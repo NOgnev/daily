@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { CookiesProvider } from 'react-cookie';
+import { AuthProvider } from './context/AuthContext';
 import './index.css';
 import App from './App';
 import 'react-bootstrap/dist/react-bootstrap.min.js'
@@ -14,9 +15,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <CookiesProvider>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
+        <AuthProvider>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </AuthProvider>
     </CookiesProvider>
   </React.StrictMode>
 );

@@ -10,16 +10,17 @@ interface LoginResponse {
   };
 }
 
-export const login = async (data: { email: string; password: string; deviceId: string }) => {
-  const response = await axios.post<LoginResponse>('/auth/login', data);
+export const login = async (data: { nickname: string; password: string; deviceId: string }) => {
+  const headers = {
+    'x-device-id': data.deviceId,
+  };
+  const response = await axios.post<LoginResponse>('/auth/login', data, { headers });
   return response.data;
 };
 
 export const register = async (data: {
-  email: string;
+  nickname: string;
   password: string;
-  name: string;
-  deviceId: string
 }) => {
   const response = await axios.post<LoginResponse>('/auth/register', data);
   return response.data;

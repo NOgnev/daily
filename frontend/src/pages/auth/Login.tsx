@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { LoginData } from '../../types/authTypes';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -16,7 +16,7 @@ const Login = () => {
     setError('');
 
     const userData: LoginData = {
-      email,
+      nickname,
       password,
     };
 
@@ -24,7 +24,7 @@ const Login = () => {
       await login(userData);
       navigate('/profile');
     } catch (err) {
-      setError('Invalid email or password');
+      setError('Invalid nickname or password');
     }
   };
 
@@ -35,13 +35,13 @@ const Login = () => {
           <h2 className="text-center mb-4">Log In</h2>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Email address</Form.Label>
+            <Form.Group className="mb-3" controlId="formNickname">
+              <Form.Label>Nickname</Form.Label>
               <Form.Control
-                type="email"
-                placeholder="Enter email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="Enter nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
                 required
               />
             </Form.Group>

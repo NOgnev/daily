@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Card, Container, Button, Spinner, Alert } from 'react-bootstrap';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 
 const Profile = () => {
