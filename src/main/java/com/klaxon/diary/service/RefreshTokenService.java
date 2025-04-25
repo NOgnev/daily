@@ -3,7 +3,7 @@ package com.klaxon.diary.service;
 import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.config.security.JwtProvider;
 import com.klaxon.diary.dto.RefreshToken;
-import com.klaxon.diary.dto.response.TokensResponse;
+import com.klaxon.diary.dto.response.RefreshResponse;
 import com.klaxon.diary.error.AppException;
 import com.klaxon.diary.error.ErrorRegistry;
 import com.klaxon.diary.repository.RefreshTokenRepository;
@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.klaxon.diary.util.MdcKey.USER_ID;
@@ -37,7 +38,7 @@ public class RefreshTokenService {
 
     @Log
     @Transactional
-    public TokensResponse refresh(String requestToken, UUID deviceId) {
+    public RefreshResponse refresh(String requestToken, UUID deviceId) {
         if (requestToken == null) {
             throw AppException.builder()
                     .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -46,14 +47,18 @@ public class RefreshTokenService {
                     .build();
         }
 
-        RefreshToken refreshToken = validateRefreshToken(requestToken);
+        List<RefreshToken> refreshTokens = refreshTokenRepository.findAllByToken(requestToken);
+        var refreshToken = refreshTokens.stream()
+                .filter(rt -> rt.token().equals(requestToken))
+                .findFirst()
+                .orElseThrow(() -> AppException.builder()
+                        .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+                        .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
+                        .args(Map.of("message", "Refresh token not found"))
+                        .build());
+        MDC.put(USER_ID, refreshToken.userId().toString());
 
-        if (!refreshToken.device().id().equals(deviceId)) {
-            throw AppException.builder()
-                    .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .args(Map.of("message", "Invalid device id"))
-                    .build();
-        }
+        validateRefreshToken(refreshToken, deviceId);
 
         var userDetails = userRepository.findById(refreshToken.userId())
                 .orElseThrow(() -> AppException.builder()
@@ -62,27 +67,35 @@ public class RefreshTokenService {
                         .args(Map.of("userId", refreshToken.userId().toString()))
                         .build());
 
-        var newRefreshToken = createRefreshToken(refreshToken.userId(), deviceId).token();
+        var newRefreshToken = createRefreshToken(refreshToken.userId(), deviceId, refreshTokens).token();
         var newAccessToken = jwtProvider.generateAccessToken(userDetails);
 
-        return new TokensResponse(newAccessToken, newRefreshToken);
+        return new RefreshResponse(newAccessToken, newRefreshToken);
     }
 
     @Log
     @Transactional
     public RefreshToken createRefreshToken(UUID userId, UUID deviceId) {
-        List<RefreshToken> allByUserId = refreshTokenRepository.findAllByUserId(userId);
-        if (allByUserId.size() > maxDevicesCount) {
+        return createRefreshToken(userId, deviceId, refreshTokenRepository.findAllByUserId(userId));
+    }
+
+    @Log
+    private RefreshToken createRefreshToken(UUID userId, UUID deviceId, List<RefreshToken> tokens) {
+        int tokenSize = tokens.size();
+        Optional<RefreshToken> expectedToken = tokens.stream()
+                .filter(refreshToken -> refreshToken.device().id().equals(deviceId))
+                .findFirst();
+        if (expectedToken.isPresent()) {
+            refreshTokenRepository.delete(expectedToken.get().userId(), expectedToken.get().device().id());
+            tokenSize--;
+        }
+        if (tokenSize >= maxDevicesCount) {
             throw AppException.builder()
                     .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
                     .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
                     .args(Map.of("message", "Too many refresh tokens"))
                     .build();
         }
-        allByUserId.stream()
-                .filter(refreshToken -> refreshToken.device().id().equals(deviceId))
-                .findFirst()
-                .ifPresent(token -> refreshTokenRepository.delete(token.userId(), token.device().id()));
 
         RefreshToken token = new RefreshToken(userId, UUID.randomUUID().toString(),
                 new RefreshToken.Device(deviceId, Instant.now().plusMillis(jwtRefreshExpirationMs)));
@@ -91,18 +104,7 @@ public class RefreshTokenService {
     }
 
     @Log
-    @Transactional
-    private RefreshToken validateRefreshToken(String token) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> AppException.builder()
-                        .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-                        .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
-                        .args(Map.of("message", "Refresh token not found"))
-                        .build());
-        MDC.put(USER_ID, refreshToken.userId().toString());
-
-        refreshTokenRepository.delete(refreshToken.userId(), refreshToken.device().id());
-
+    private void validateRefreshToken(RefreshToken refreshToken, UUID deviceId) {
         if (refreshToken.device().expiryDate().isBefore(Instant.now())) {
             throw AppException.builder()
                     .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -110,6 +112,11 @@ public class RefreshTokenService {
                     .args(Map.of("message", "Refresh token expired"))
                     .build();}
 
-        return refreshToken;
+        if (!refreshToken.device().id().equals(deviceId)) {
+            throw AppException.builder()
+                    .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .args(Map.of("message", "Invalid device id"))
+                    .build();
+        }
     }
 }

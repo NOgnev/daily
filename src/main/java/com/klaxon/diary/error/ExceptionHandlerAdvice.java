@@ -12,6 +12,9 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -49,6 +52,14 @@ public class ExceptionHandlerAdvice {
     })
     public ResponseEntity<ErrorResponse> badRequestError(Throwable t) {
         return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), t.getMessage()));
+    }
+
+    @ExceptionHandler({
+            NoHandlerFoundException.class,
+            NoResourceFoundException.class
+    })
+    public ModelAndView handleNoHandlerFoundException() {
+        return new ModelAndView("forward:/index.html");
     }
 
 

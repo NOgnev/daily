@@ -5,7 +5,7 @@ import com.klaxon.diary.config.log.hidden.Hidden;
 import com.klaxon.diary.config.security.JwtProvider;
 import com.klaxon.diary.dto.AuthUser;
 import com.klaxon.diary.dto.request.AuthRequest;
-import com.klaxon.diary.dto.response.TokensResponse;
+import com.klaxon.diary.dto.response.LoginResponse;
 import com.klaxon.diary.error.AppException;
 import com.klaxon.diary.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +52,7 @@ public class AuthService {
     }
 
     @Log
-    public TokensResponse login(AuthRequest request, UUID deviceId) {
+    public LoginResponse login(AuthRequest request, UUID deviceId) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.nickname(), request.password())
         );
@@ -60,6 +60,13 @@ public class AuthService {
         MDC.put(USER_ID, user.id().toString());
         String accessToken = jwtProvider.generateAccessToken(user);
         String refreshToken = refreshTokenService.createRefreshToken(user.id(), deviceId).token();
-        return new TokensResponse(accessToken, refreshToken);
+        return LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(LoginResponse.User.builder()
+                        .id(user.id())
+                        .nickname(user.nickname())
+                        .build())
+                .build();
     }
 }

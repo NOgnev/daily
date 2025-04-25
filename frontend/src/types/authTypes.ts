@@ -8,10 +8,10 @@ export interface LoginData {
 //   name: string;
 // }
 
-export interface AuthResponse {
+export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
-  user: AuthUser;
+  user: User;
 }
 
 export interface RefreshTokenResponse {
@@ -20,17 +20,16 @@ export interface RefreshTokenResponse {
 }
 
 // Тип пользователя
-export interface AuthUser {
+export interface User {
   id: string;
-  email: string;
-  name: string;
-  createdAt?: Date;
+  nickname: string;
 }
 
-// Типы для хука useAuth
+// Типы auth контекста
 export interface AuthContextType {
-  user: AuthUser | null;
-  isAuthenticated: boolean | null;
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
   login: (data: LoginData) => Promise<void>;
   register: (data: LoginData) => Promise<void>;
   logout: () => Promise<void>;
@@ -69,4 +68,9 @@ export interface CookieOptions {
   secure?: boolean;
   httpOnly?: boolean;
   sameSite?: 'strict' | 'lax' | 'none';
+}
+
+export interface Device {
+    id: string;
+    expiryDate: string;
 }

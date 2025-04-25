@@ -37,7 +37,25 @@ public class RefreshTokenRepository {
     }
 
     @Log
-    public Optional<RefreshToken> findByToken(@Hidden String token) {
+    public List<RefreshToken> findAllByToken(@Hidden String token) {
+        var sql = """
+                WITH owner_user AS (
+                    SELECT user_id
+                    FROM diary.refresh_token
+                    WHERE token = :token
+                )
+                SELECT rt.user_id,
+                       rt.token,
+                       rt.device_id,
+                       rt.expiry_date
+                FROM diary.refresh_token rt
+                JOIN owner_user ou ON rt.user_id = ou.user_id;
+                """;
+        return jdbcTemplate.query(sql, Map.of("token", token), refreshTokenRowMapper);
+    }
+
+    @Log
+    public Optional<RefreshToken> find(@Hidden String token) {
         var sql = """
                 SELECT user_id,
                        token,
@@ -74,6 +92,15 @@ public class RefreshTokenRepository {
                   AND device_id = :deviceId
                 """;
         jdbcTemplate.update(sql, Map.of("userId", userId, "deviceId", deviceId));
+    }
+
+    @Log
+    public void delete(String token) {
+        var sql = """
+                DELETE FROM diary.refresh_token
+                WHERE token = :token
+                """;
+        jdbcTemplate.update(sql, Map.of("token", token));
     }
 
     @Log

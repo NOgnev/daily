@@ -1,12 +1,16 @@
 import { useEffect } from 'react';
-import { Card, Container, Button, Spinner, Alert } from 'react-bootstrap';
+import { Card, Container, Button, Spinner, Alert, ListGroup } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import { getDevices } from '../api/authService';
+import { Device } from '../types/authTypes';
+import useStorageListener from '../hooks/useStorageListener';
 
 const Profile = () => {
   const { user, logout, checkAuth } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [devices, setDevices] = useState<Device[] | null>(null);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -20,6 +24,24 @@ const Profile = () => {
     };
     verifyAuth();
   }, [checkAuth]);
+
+  const fetchDevices = async () => {
+      setLoading(true);
+      try {
+          const devices = await getDevices();
+          setDevices(devices);
+      } catch (err) {
+          setError(err instanceof Error? err.message : 'Something went wrong');
+      } finally {
+          setLoading(false);
+      }
+  }
+
+  useEffect(() => {
+      fetchDevices();
+  }, []);
+
+  useStorageListener('user', fetchDevices);
 
   if (loading) {
     return (
@@ -46,8 +68,26 @@ const Profile = () => {
           <div className="mb-4">
             <h6>Personal Information</h6>
             <hr />
-            <p><strong>Name:</strong> {user?.name || 'Not specified'}</p>
-            <p><strong>Email:</strong> {user?.email}</p>
+            <p><strong>Id:</strong> {user?.id}</p>
+            <p><strong>Nickname:</strong> {user?.nickname}</p>
+            {/*<p><strong>Email:</strong> {user?.email || 'Not set'}</p>*/}
+          </div>
+
+          <div className="mb-4">
+            <h6>Devices</h6>
+            <hr />
+            {devices ? (
+              <ListGroup>
+                {devices.map(device => (
+                  <ListGroup.Item key={device.id}>
+                    <strong>ID:</strong> {device.id} <br />
+                    <strong>Expiry Date:</strong> {new Date(device.expiryDate).toLocaleDateString()}
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            ) : (
+              <p>No devices found.</p>
+            )}
           </div>
 
           <div className="mb-4">

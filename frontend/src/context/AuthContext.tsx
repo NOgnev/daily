@@ -1,34 +1,38 @@
 import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import { login, register, logout, refresh } from '../api/authService';
-import { AuthUser, LoginData } from '../types/authTypes';
-
-interface AuthContextType {
-  user: AuthUser | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  checkAuth: () => Promise<void>;
-  login: (data: LoginData) => Promise<void>;
-  register: (data: LoginData) => Promise<void>;
-  logout: () => Promise<void>;
-}
+import { User, LoginData, AuthContextType } from '../types/authTypes';
+import useStorageListener from '../hooks/useStorageListener';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [cookies, setCookie, removeCookie] = useCookies(['accessToken', 'refreshToken']);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const syncFromStorage = () => {
+      const stored = localStorage.getItem('user');
+      setUser(stored ? JSON.parse(stored) : null);
+  }
+
+  useEffect(() => {
+      syncFromStorage();
+  }, [])
+
+  useStorageListener('user', syncFromStorage);
 
   const checkAuth = useCallback(async () => {
     setIsLoading(true);
     try {
         const accessToken = localStorage.getItem('accessToken');
         const refreshToken = localStorage.getItem('refreshToken');
+        const user = localStorage.getItem('user');
 //         if (cookies.accessToken) {
-        if (accessToken && !isTokenExpired(accessToken)) {
+        if (accessToken && !isTokenExpired(accessToken) && user) {
             setIsAuthenticated(true);
+            setUser(JSON.parse(user));
 //         } else if (cookies.refreshToken) {
         } else if (refreshToken) {
             const deviceId = localStorage.getItem('deviceId');
@@ -36,7 +40,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 //                 const { accessToken, refreshToken } = await refresh(cookies.refreshToken, deviceId);
                 const { accessToken : newAccessToken, refreshToken : newRefreshToken } = await refresh(refreshToken, deviceId);
                 setAuthTokens(newAccessToken, newRefreshToken);
-                setIsAuthenticated(true);
             }
         }
       } catch (error) {
@@ -51,6 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 //     setCookie('refreshToken', refreshToken, { path: '/', httpOnly: true, secure: true });
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
+    setIsAuthenticated(true);
   };
 
   const clearAuth = () => {
@@ -59,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     setIsAuthenticated(false);
-    setUser(null);
+    localStorage.removeItem('user');
   };
 
   const handleLogin = async (loginData: LoginData) => {
@@ -70,6 +74,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const { accessToken, refreshToken, user } = await login({ ...loginData, deviceId });
         setAuthTokens(accessToken, refreshToken);
+        localStorage.setItem('user', JSON.stringify(user));
         setUser(user);
         setIsAuthenticated(true);
     } finally {
@@ -82,8 +87,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
         const { accessToken, refreshToken, user } = await register(registerData);
         setAuthTokens(accessToken, refreshToken);
+        localStorage.setItem('user', JSON.stringify(user));
         setUser(user);
-        setIsAuthenticated(true);
     } finally {
         setIsLoading(false);
     }

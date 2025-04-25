@@ -3,7 +3,8 @@ package com.klaxon.diary.controller.api;
 import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.dto.request.AuthRequest;
 import com.klaxon.diary.dto.request.RefreshTokenRequest;
-import com.klaxon.diary.dto.response.TokensResponse;
+import com.klaxon.diary.dto.response.LoginResponse;
+import com.klaxon.diary.dto.response.RefreshResponse;
 import com.klaxon.diary.service.AuthService;
 import com.klaxon.diary.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +35,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokensResponse> login(@RequestHeader(DEVICE_ID_HEADER) UUID deviceId,
-                                                @RequestBody AuthRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestHeader(DEVICE_ID_HEADER) UUID deviceId,
+                                               @RequestBody AuthRequest request) {
         return ResponseEntity.ok().body(authService.login(request, deviceId));
     }
 
     @Log
     @PostMapping("/refresh")
-    public ResponseEntity<TokensResponse> refresh(@RequestHeader(DEVICE_ID_HEADER) UUID deviceId,
-                                                  @RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<RefreshResponse> refresh(@RequestHeader(DEVICE_ID_HEADER) UUID deviceId,
+                                                   @RequestBody RefreshTokenRequest request) {
         return ResponseEntity.ok().body(refreshTokenService.refresh(request.refreshToken(), deviceId));
     }
 }

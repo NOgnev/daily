@@ -1,14 +1,6 @@
 import axios from './apiClient';
+import { LoginResponse, Device } from '../types/authTypes';
 
-interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
-}
 
 export const login = async (data: { nickname: string; password: string; deviceId: string }) => {
   const headers = {
@@ -35,5 +27,10 @@ export const refresh = async (refreshToken: string, deviceId: string) => {
     refreshToken,
     deviceId
   });
+  return response.data;
+};
+
+export const getDevices = async () => {
+  const response = await axios.get<Array<Device>>('/device');
   return response.data;
 };
