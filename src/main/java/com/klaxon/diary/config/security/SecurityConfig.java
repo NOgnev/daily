@@ -35,24 +35,9 @@ public class SecurityConfig {
                 .csrf(csfr -> csfr.ignoringRequestMatchers("/api/**"))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/",
-                                "/static/**",
-                                "/css/**",
-                                "/js/**",
-                                "/index.html",
-                                "/favicon.ico",
-                                "/manifest.json",
-                                "/asset-manifest.json",
-                                "/logo192.png",
-                                "/logo512.png",
-                                "/robots.txt"
-                        ).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/profile").permitAll()
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/register").permitAll()
-                        .requestMatchers("/about").permitAll()
-                        .anyRequest().authenticated()
+                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll()
                 )
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint())
