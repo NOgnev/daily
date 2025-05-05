@@ -23,7 +23,7 @@ public class UserRepository {
     @Log
     public AuthUser save(AuthUser authUser) {
         var sql = """
-                INSERT INTO diary.user (id, nickname, password)
+                INSERT INTO "user".user (id, nickname, password)
                 VALUES (:id, :nickname, :password)
                 RETURNING id, nickname, password
                 """;
@@ -38,7 +38,7 @@ public class UserRepository {
                 SELECT id,
                        nickname,
                        password
-                FROM diary.user
+                FROM "user".user
                 WHERE nickname = :nickname
                   AND NOT deleted
                 """;
@@ -53,7 +53,7 @@ public class UserRepository {
                 SELECT id,
                        nickname,
                        password
-                FROM diary.user
+                FROM "user".user
                 WHERE id = :id
                   AND NOT deleted
                 """;

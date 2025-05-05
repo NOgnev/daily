@@ -30,7 +30,7 @@ public class RefreshTokenRepository {
                        token,
                        device_id,
                        expiry_date
-                FROM diary.refresh_token
+                FROM "user".refresh_token
                 WHERE user_id = :userId
                 """;
         return jdbcTemplate.query(sql, Map.of("userId", userId), refreshTokenRowMapper);
@@ -41,14 +41,14 @@ public class RefreshTokenRepository {
         var sql = """
                 WITH owner_user AS (
                     SELECT user_id
-                    FROM diary.refresh_token
+                    FROM "user".refresh_token
                     WHERE token = :token
                 )
                 SELECT rt.user_id,
                        rt.token,
                        rt.device_id,
                        rt.expiry_date
-                FROM diary.refresh_token rt
+                FROM "user".refresh_token rt
                 JOIN owner_user ou ON rt.user_id = ou.user_id;
                 """;
         return jdbcTemplate.query(sql, Map.of("token", token), refreshTokenRowMapper);
@@ -61,7 +61,7 @@ public class RefreshTokenRepository {
                        token,
                        device_id,
                        expiry_date
-                FROM diary.refresh_token
+                FROM "user".refresh_token
                 WHERE token = :token
                 """;
         return Optional.ofNullable(singleResult(
@@ -72,7 +72,7 @@ public class RefreshTokenRepository {
     @Log
     public RefreshToken save(RefreshToken token) {
         var sql = """
-                INSERT INTO diary.refresh_token (user_id, token, device_id, expiry_date)
+                INSERT INTO "user".refresh_token (user_id, token, device_id, expiry_date)
                 VALUES (:userId, :token, :deviceId, :expiryDate)
                 RETURNING user_id, token, device_id, expiry_date
                 """;
@@ -87,7 +87,7 @@ public class RefreshTokenRepository {
     @Log
     public void delete(UUID userId, UUID deviceId) {
         var sql = """
-                DELETE FROM diary.refresh_token
+                DELETE FROM "user".refresh_token
                 WHERE user_id = :userId
                   AND device_id = :deviceId
                 """;
@@ -97,7 +97,7 @@ public class RefreshTokenRepository {
     @Log
     public void delete(String token) {
         var sql = """
-                DELETE FROM diary.refresh_token
+                DELETE FROM "user".refresh_token
                 WHERE token = :token
                 """;
         jdbcTemplate.update(sql, Map.of("token", token));
@@ -106,7 +106,7 @@ public class RefreshTokenRepository {
     @Log
     public void deleteExpired() {
         var sql = """
-                DELETE FROM diary.refresh_token
+                DELETE FROM "user".refresh_token
                 WHERE expiry_date < now()
                 """;
         jdbcTemplate.update(sql, Map.of());

@@ -1,9 +1,9 @@
-import { Navbar, Nav, Button, Container } from 'react-bootstrap';
+import { Navbar, Nav, Button, Container, Dropdown, DropdownButton } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -25,7 +25,12 @@ const Header = () => {
           </Nav>
           <Nav>
             {isAuthenticated ? (
+            <>
+              <Navbar.Text className="me-2">
+                Signed in as: {user?.nickname}
+              </Navbar.Text>
               <Button variant="outline-light" onClick={handleLogout}>Logout</Button>
+            </>
             ) : (
               <>
                 <Nav.Link as={Link} to="/login" eventKey="3">Login</Nav.Link>

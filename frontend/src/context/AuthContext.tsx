@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
-import { login, register, logout, refresh } from '../api/authService';
+import { login, register, logout, refresh } from '../api/authApi';
 import { User, LoginData, AuthContextType } from '../types/authTypes';
 import useStorageListener from '../hooks/useStorageListener';
 
@@ -8,19 +8,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [cookies, setCookie, removeCookie] = useCookies(['accessToken', 'refreshToken']);
-  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(() => {
+      const stored = localStorage.getItem('user');
+      return stored ? JSON.parse(stored) : null;
+  });
 
   const syncFromStorage = () => {
       const stored = localStorage.getItem('user');
       setUser(stored ? JSON.parse(stored) : null);
   }
-
-  useEffect(() => {
-      syncFromStorage();
-  }, [])
-
   useStorageListener('user', syncFromStorage);
 
   const checkAuth = useCallback(async () => {
@@ -31,8 +29,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const user = localStorage.getItem('user');
 //         if (cookies.accessToken) {
         if (accessToken && !isTokenExpired(accessToken) && user) {
-            setIsAuthenticated(true);
             setUser(JSON.parse(user));
+            setIsAuthenticated(true);
 //         } else if (cookies.refreshToken) {
         } else if (refreshToken) {
             const deviceId = localStorage.getItem('deviceId');
@@ -41,13 +39,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 const { accessToken : newAccessToken, refreshToken : newRefreshToken } = await refresh(refreshToken, deviceId);
                 setAuthTokens(newAccessToken, newRefreshToken);
             }
+        } else {
+            clearAuth();
         }
       } catch (error) {
           clearAuth();
       } finally {
           setIsLoading(false);
       }
-  }, [cookies.accessToken, cookies.refreshToken]);
+  }, [/*cookies.accessToken, cookies.refreshToken*/ ]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken && isTokenExpired(accessToken)) {
+        checkAuth();
+      }
+    }, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [checkAuth]);
 
   const setAuthTokens = (accessToken: string, refreshToken: string) => {
 //     setCookie('accessToken', accessToken, { path: '/', httpOnly: true, secure: true });
@@ -62,8 +72,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 //     removeCookie('refreshToken', { path: '/' });
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    setIsAuthenticated(false);
     localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   const handleLogin = async (loginData: LoginData) => {
@@ -76,7 +87,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setAuthTokens(accessToken, refreshToken);
         localStorage.setItem('user', JSON.stringify(user));
         setUser(user);
-        setIsAuthenticated(true);
     } finally {
         setIsLoading(false);
     }
@@ -112,17 +122,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const currentTime = Date.now() / 1000;
     return decodedToken.exp < currentTime;
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const accessToken = localStorage.getItem('accessToken');
-      if (accessToken && isTokenExpired(accessToken)) {
-        checkAuth();
-      }
-    }, 60000); // Check every minute
-
-    return () => clearInterval(interval);
-  }, [checkAuth]);
 
   const value = useMemo(() => ({
       user,

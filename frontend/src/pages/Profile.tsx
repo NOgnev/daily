@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Card, Container, Button, Spinner, Alert, ListGroup } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
-import { getDevices } from '../api/authService';
+import { getDevices } from '../api/authApi';
 import { Device } from '../types/authTypes';
 import useStorageListener from '../hooks/useStorageListener';
 
@@ -12,20 +12,7 @@ const Profile = () => {
   const [error, setError] = useState('');
   const [devices, setDevices] = useState<Device[] | null>(null);
 
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        await checkAuth();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Session expired');
-      } finally {
-        setLoading(false);
-      }
-    };
-    verifyAuth();
-  }, [checkAuth]);
-
-  const fetchDevices = async () => {
+  const fetchDevices = useCallback(async () => {
       setLoading(true);
       try {
           const devices = await getDevices();
@@ -35,13 +22,22 @@ const Profile = () => {
       } finally {
           setLoading(false);
       }
-  }
-
-  useEffect(() => {
-      fetchDevices();
   }, []);
 
+  useEffect(() => {
+      if (!user) return;
+      fetchDevices();
+  }, [user, fetchDevices]);
+
   useStorageListener('user', fetchDevices);
+
+  if (!user) {
+    return (
+      <Container className="mt-5">
+        <Alert variant="warning">User not authenticated</Alert>
+      </Container>
+    );
+  }
 
   if (loading) {
     return (

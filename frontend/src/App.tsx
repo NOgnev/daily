@@ -22,7 +22,7 @@ function App() {
     }, [checkAuth]);
 
     if (isLoading) return (
-        <Container className="flex-grow-1 mt-4">
+        <Container className="d-flex justify-content-center mt-5">
             <Spinner animation="border" />
         </Container>
     );
