@@ -1,9 +1,4 @@
-import React, { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Spinner, Container } from 'react-bootstrap';
-import logo from './logo.svg';
-import './App.css';
-import { useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
 import PrivateRoute from './components/PrivateRoute'
 import PublicOnlyRoute from './components/PublicOnlyRoute'
@@ -11,22 +6,8 @@ import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import About from './pages/About'
 import Profile from './pages/Profile'
-import { generateDeviceId } from './utils/deviceUtils'
 
 function App() {
-  const { checkAuth, isLoading } = useAuth();
-
-    useEffect(() => {
-        generateDeviceId();
-        checkAuth();
-    }, [checkAuth]);
-
-    if (isLoading) return (
-        <Container className="d-flex justify-content-center mt-5">
-            <Spinner animation="border" />
-        </Container>
-    );
-
     return (
         <Routes>
            <Route path="/" element={<Layout />}>

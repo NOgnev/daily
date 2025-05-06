@@ -1,36 +1,13 @@
-import axios from './apiClient';
-import { LoginResponse, Device } from '../types/authTypes';
+import { apiClient } from './apiClient';
+import { User } from '../types/authTypes';
 
-
-export const login = async (data: { nickname: string; password: string; deviceId: string }) => {
-  const headers = {
-    'x-device-id': data.deviceId,
-  };
-  const response = await axios.post<LoginResponse>('/auth/login', data, { headers });
-  return response.data;
-};
-
-export const register = async (data: {
-  nickname: string;
-  password: string;
-}) => {
-  const response = await axios.post<LoginResponse>('/auth/register', data);
-  return response.data;
-};
-
-export const logout = async (refreshToken: string, deviceId: string) => {
-  await axios.post('/auth/logout', { refreshToken, deviceId });
-};
-
-export const refresh = async (refreshToken: string, deviceId: string) => {
-  const response = await axios.post<Omit<LoginResponse, 'user'>>('/auth/refresh', {
-    refreshToken,
-    deviceId
-  });
-  return response.data;
-};
-
-export const getDevices = async () => {
-  const response = await axios.get<Array<Device>>('/device');
-  return response.data;
-};
+export const authApi = {
+    register: (nickname: string, password: string): Promise<User> =>
+        apiClient.post<User>('/auth/register', { nickname, password }).then(res => res.data),
+    login: (nickname: string, password: string): Promise<User> =>
+        apiClient.post<User>('/auth/login', { nickname, password }).then(res => res.data),
+    refresh: (): Promise<void> =>
+        apiClient.post('/auth/refresh').then(res => res.data),
+    logout: (): Promise<void> =>
+        apiClient.post('/auth/logout').then(res => res.data),
+}

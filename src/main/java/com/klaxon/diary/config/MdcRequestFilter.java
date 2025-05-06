@@ -20,8 +20,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.klaxon.diary.util.Headers.SERVER_TIME_HEADER;
-import static com.klaxon.diary.util.Headers.TRACE_ID_HEADER;
+import static com.klaxon.diary.util.Constants.SERVER_TIME_HEADER;
+import static com.klaxon.diary.util.Constants.TRACE_ID_HEADER;
 import static com.klaxon.diary.util.MdcKey.OPERATION_NAME;
 import static com.klaxon.diary.util.MdcKey.TRACE_ID;
 import static java.util.Optional.empty;

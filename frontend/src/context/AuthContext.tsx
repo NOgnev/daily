@@ -1,143 +1,119 @@
 import { createContext, useContext, useState, useCallback, useMemo, useEffect } from 'react';
-import { useCookies } from 'react-cookie';
-import { login, register, logout, refresh } from '../api/authApi';
-import { User, LoginData, AuthContextType } from '../types/authTypes';
+import { authApi } from '../api/authApi';
+import { userApi } from '../api/userApi';
+import { User, AuthContextType } from '../types/authTypes';
 import useStorageListener from '../hooks/useStorageListener';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [cookies, setCookie, removeCookie] = useCookies(['accessToken', 'refreshToken']);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(() => {
-      const stored = localStorage.getItem('user');
-      return stored ? JSON.parse(stored) : null;
-  });
-
-  const syncFromStorage = () => {
-      const stored = localStorage.getItem('user');
-      setUser(stored ? JSON.parse(stored) : null);
-  }
-  useStorageListener('user', syncFromStorage);
-
-  const checkAuth = useCallback(async () => {
-    setIsLoading(true);
-    try {
-        const accessToken = localStorage.getItem('accessToken');
-        const refreshToken = localStorage.getItem('refreshToken');
-        const user = localStorage.getItem('user');
-//         if (cookies.accessToken) {
-        if (accessToken && !isTokenExpired(accessToken) && user) {
-            setUser(JSON.parse(user));
-            setIsAuthenticated(true);
-//         } else if (cookies.refreshToken) {
-        } else if (refreshToken) {
-            const deviceId = localStorage.getItem('deviceId');
-            if (deviceId) {
-//                 const { accessToken, refreshToken } = await refresh(cookies.refreshToken, deviceId);
-                const { accessToken : newAccessToken, refreshToken : newRefreshToken } = await refresh(refreshToken, deviceId);
-                setAuthTokens(newAccessToken, newRefreshToken);
-            }
-        } else {
-            clearAuth();
-        }
-      } catch (error) {
-          clearAuth();
-      } finally {
-          setIsLoading(false);
-      }
-  }, [/*cookies.accessToken, cookies.refreshToken*/ ]);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const accessToken = localStorage.getItem('accessToken');
-      if (accessToken && isTokenExpired(accessToken)) {
-        checkAuth();
+    const loadUser = async () => {
+      try {
+        const userData = await userApi.getCurrentUser();
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+      } catch (error) {
+        console.error('Failed to load user:', error);
+        setUser(null);
+        localStorage.removeItem('user');
+      } finally {
+        setIsLoading(false);
       }
-    }, 60000); // Check every minute
-    return () => clearInterval(interval);
-  }, [checkAuth]);
+    };
+    loadUser();
+  }, []);
 
-  const setAuthTokens = (accessToken: string, refreshToken: string) => {
-//     setCookie('accessToken', accessToken, { path: '/', httpOnly: true, secure: true });
-//     setCookie('refreshToken', refreshToken, { path: '/', httpOnly: true, secure: true });
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    setIsAuthenticated(true);
+  useEffect(() => {
+    const handleForceLogout = () => {
+      setUser(null);
+      localStorage.removeItem('user');
+    };
+
+    window.addEventListener('force-logout', handleForceLogout);
+    return () => window.removeEventListener('force-logout', handleForceLogout);
+  }, []);
+
+  const syncFromStorage = () => {
+    const stored = localStorage.getItem('user');
+    setUser(stored ? JSON.parse(stored) : null);
   };
 
-  const clearAuth = () => {
-//     removeCookie('accessToken', { path: '/' });
-//     removeCookie('refreshToken', { path: '/' });
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    setUser(null);
-    setIsAuthenticated(false);
-  };
+  useStorageListener('user', syncFromStorage);
 
-  const handleLogin = async (loginData: LoginData) => {
+//   useEffect(() => {
+//     const interval = setInterval(async () => {
+//       try {
+//         const userData = await userApi.getCurrentUser();
+//         setUser(userData);
+//         localStorage.setItem('user', JSON.stringify(userData));
+//       } catch (error) {
+//         console.error('Failed to refresh user:', error);
+//         setUser(null);
+//         localStorage.removeItem('user');
+//       }
+//     }, 60000); // Check every minute
+//
+//     return () => clearInterval(interval);
+//   }, []);
+
+const handleRegister = useCallback(async (nickname: string, password: string) => {
     setIsLoading(true);
     try {
-        const deviceId = localStorage.getItem('deviceId');
-        if (!deviceId) throw new Error('Device ID not found');
-
-        const { accessToken, refreshToken, user } = await login({ ...loginData, deviceId });
-        setAuthTokens(accessToken, refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        setUser(user);
+      await authApi.register(nickname, password); // Register the user
+      // Immediately log in the user after successful registration
+      const loginUser = await authApi.login(nickname, password);
+      localStorage.setItem('user', JSON.stringify(loginUser));
+      setUser(loginUser);
+    } catch (error) {
+      console.error('Registration or login failed:', error);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleRegister = async (registerData: LoginData) => {
+  const handleLogin = useCallback(async (nickname: string, password: string) => {
     setIsLoading(true);
     try {
-        const { accessToken, refreshToken, user } = await register(registerData);
-        setAuthTokens(accessToken, refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        setUser(user);
+      const loginUser = await authApi.login(nickname, password);
+      localStorage.setItem('user', JSON.stringify(loginUser));
+      setUser(loginUser);
+    } catch (error) {
+      console.error('Login failed:', error);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     setIsLoading(true);
     try {
-        const deviceId = localStorage.getItem('deviceId');
-        if (deviceId && cookies.refreshToken) {
-          await logout(cookies.refreshToken, deviceId);
-        }
-        clearAuth();
+      await authApi.logout();
+      localStorage.removeItem('user');
+      setUser(null);
+    } catch (error) {
+      console.error('Logout failed:', error);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-  };
-
-  const isTokenExpired = (token: string): boolean => {
-    const decodedToken = JSON.parse(atob(token.split('.')[1]));
-    const currentTime = Date.now() / 1000;
-    return decodedToken.exp < currentTime;
-  };
+  }, []);
 
   const value = useMemo(() => ({
-      user,
-      isAuthenticated,
-      isLoading,
-      checkAuth,
-      login: handleLogin,
-      register: handleRegister,
-      logout: handleLogout
-  }), [user, isAuthenticated, isLoading]);
+    user,
+    isLoading,
+    login: handleLogin,
+    register: handleRegister,
+    logout: handleLogout
+  }), [user, isLoading, handleLogin, handleRegister, handleLogout]);
 
   return (
-      <AuthContext.Provider value={value}>
-        {children}
-      </AuthContext.Provider>
-    );
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ public class DeviceController {
     public ResponseEntity<List<Device>> getDevices(@AuthenticationPrincipal AuthUser userDetails) {
         var list = deviceService.getDevices(userDetails.id()).stream()
                 .map(d -> new Device(d.device().id(), d.device().expiryDate()))
+                .sorted(Comparator.comparing(Device::expiryDate))
                 .toList();
         return ResponseEntity.ok().body(list);
     }

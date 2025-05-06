@@ -1,30 +1,33 @@
+import { useState } from 'react';
 import { Navbar, Nav, Button, Container, Dropdown, DropdownButton } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
-  const { isAuthenticated, logout, user } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+    setExpanded(false);
   };
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" sticky="top" collapseOnSelect >
+    <Navbar bg="dark" variant="dark" expand="lg" sticky="top" expanded={expanded} onToggle={setExpanded} collapseOnSelect>
       <Container>
         <Navbar.Brand as={Link} to="/">My App</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/about" eventKey="1">About</Nav.Link>
-            {isAuthenticated && (
+            {user && (
               <Nav.Link as={Link} to="/profile" eventKey="2">Profile</Nav.Link>
             )}
           </Nav>
           <Nav>
-            {isAuthenticated ? (
+            {user ? (
             <>
               <Navbar.Text className="me-2">
                 Signed in as: {user?.nickname}

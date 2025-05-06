@@ -1,12 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Spinner, Container } from 'react-bootstrap';
+import React from 'react';
 
 const PrivateRoute = () => {
-  const { isAuthenticated, checkAuth } = useAuth();
+  const { user, isLoading } = useAuth();
 
-  if (isAuthenticated === null) {
-    checkAuth();
+  if (isLoading) {
     return (
           <Container className="d-flex justify-content-center mt-5">
             <Spinner animation="border" />
@@ -14,6 +14,7 @@ const PrivateRoute = () => {
     );
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  return user ? <Outlet /> : <Navigate to="/login" replace />;
 };
-export default PrivateRoute;
+
+export default React.memo(PrivateRoute);

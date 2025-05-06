@@ -6,6 +6,7 @@ import com.klaxon.diary.dto.AuthUser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,8 +14,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.UUID;
 
-import static com.klaxon.diary.util.BearerUtil.getBearer;
-import static com.klaxon.diary.util.Headers.ACCESS_TOKEN_HEADER;
+import static com.klaxon.diary.util.Constants.ACCESS_TOKEN_COOKIE;
 
 @Component
 public class JwtProvider {
@@ -26,6 +26,7 @@ public class JwtProvider {
     private long jwtExpirationMs;
 
 
+    @Log(logResult = false)
     public String generateAccessToken(AuthUser user) {
         return Jwts.builder()
                 .setSubject(user.id().toString())
@@ -35,6 +36,7 @@ public class JwtProvider {
                 .compact();
     }
 
+    @Log(logArgs = false)
     public UUID getUserIdFromToken(String token) {
         return UUID.fromString(
                 Jwts.parserBuilder()
@@ -61,7 +63,14 @@ public class JwtProvider {
 
     @Log(logArgs = false, logResult = false)
     public String getTokenFromRequest(HttpServletRequest request) {
-        String bearer = request.getHeader(ACCESS_TOKEN_HEADER);
-        return getBearer(bearer);
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

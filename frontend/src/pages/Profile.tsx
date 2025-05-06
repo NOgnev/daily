@@ -2,12 +2,12 @@ import { useEffect, useCallback } from 'react';
 import { Card, Container, Button, Spinner, Alert, ListGroup } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
-import { getDevices } from '../api/authApi';
+import { deviceApi } from '../api/deviceApi';
 import { Device } from '../types/authTypes';
 import useStorageListener from '../hooks/useStorageListener';
 
 const Profile = () => {
-  const { user, logout, checkAuth } = useAuth();
+  const { user, logout } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [devices, setDevices] = useState<Device[] | null>(null);
@@ -15,7 +15,7 @@ const Profile = () => {
   const fetchDevices = useCallback(async () => {
       setLoading(true);
       try {
-          const devices = await getDevices();
+          const devices = await deviceApi.getDevices();
           setDevices(devices);
       } catch (err) {
           setError(err instanceof Error? err.message : 'Something went wrong');
@@ -95,7 +95,7 @@ const Profile = () => {
           </div>
 
           <div className="text-muted small mt-4">
-            <p>Account created on: {new Date().toLocaleDateString()}</p>
+            <p>Date: {new Date().toLocaleDateString()}</p>
           </div>
         </Card.Body>
       </Card>

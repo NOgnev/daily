@@ -1,6 +1,7 @@
 package com.klaxon.diary.service;
 
 import com.klaxon.diary.config.log.Log;
+import com.klaxon.diary.config.log.hidden.Hidden;
 import com.klaxon.diary.config.security.JwtProvider;
 import com.klaxon.diary.dto.RefreshToken;
 import com.klaxon.diary.dto.response.RefreshResponse;
@@ -9,6 +10,7 @@ import com.klaxon.diary.error.ErrorRegistry;
 import com.klaxon.diary.repository.RefreshTokenRepository;
 import com.klaxon.diary.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +26,7 @@ import java.util.UUID;
 
 import static com.klaxon.diary.util.MdcKey.USER_ID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
@@ -38,7 +42,7 @@ public class RefreshTokenService {
 
     @Log
     @Transactional
-    public RefreshResponse refresh(String requestToken, UUID deviceId) {
+    public RefreshResponse refresh(@Hidden String requestToken) {
         if (requestToken == null) {
             throw AppException.builder()
                     .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -58,7 +62,12 @@ public class RefreshTokenService {
                         .build());
         MDC.put(USER_ID, refreshToken.userId().toString());
 
-        validateRefreshToken(refreshToken, deviceId);
+        if (refreshToken.device().expiryDate().isBefore(Instant.now())) {
+            throw AppException.builder()
+                    .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
+                    .args(Map.of("message", "Refresh token expired"))
+                    .build();}
 
         var userDetails = userRepository.findById(refreshToken.userId())
                 .orElseThrow(() -> AppException.builder()
@@ -67,7 +76,7 @@ public class RefreshTokenService {
                         .args(Map.of("userId", refreshToken.userId().toString()))
                         .build());
 
-        var newRefreshToken = createRefreshToken(refreshToken.userId(), deviceId, refreshTokens).token();
+        var newRefreshToken = createRefreshToken(refreshToken.userId(), refreshToken.device().id(), refreshTokens);
         var newAccessToken = jwtProvider.generateAccessToken(userDetails);
 
         return new RefreshResponse(newAccessToken, newRefreshToken);
@@ -90,11 +99,11 @@ public class RefreshTokenService {
             tokenSize--;
         }
         if (tokenSize >= maxDevicesCount) {
-            throw AppException.builder()
-                    .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
-                    .args(Map.of("message", "Too many refresh tokens"))
-                    .build();
+             log.warn("Too many refresh tokens");
+            var oldestToken = tokens.stream()
+                    .min(Comparator.comparing(refreshToken -> refreshToken.device().expiryDate()))
+                    .get();
+            refreshTokenRepository.delete(oldestToken.userId(), oldestToken.device().id());
         }
 
         RefreshToken token = new RefreshToken(userId, UUID.randomUUID().toString(),
@@ -104,19 +113,7 @@ public class RefreshTokenService {
     }
 
     @Log
-    private void validateRefreshToken(RefreshToken refreshToken, UUID deviceId) {
-        if (refreshToken.device().expiryDate().isBefore(Instant.now())) {
-            throw AppException.builder()
-                    .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
-                    .args(Map.of("message", "Refresh token expired"))
-                    .build();}
-
-        if (!refreshToken.device().id().equals(deviceId)) {
-            throw AppException.builder()
-                    .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .args(Map.of("message", "Invalid device id"))
-                    .build();
-        }
+    public void deleteRefreshToken(@Hidden String token) {
+        refreshTokenRepository.delete(token);
     }
 }

@@ -52,17 +52,19 @@ public class AuthService {
     }
 
     @Log
-    public LoginResponse login(AuthRequest request, UUID deviceId) {
+    public LoginResponse login(AuthRequest request) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.nickname(), request.password())
         );
         AuthUser user = (AuthUser) auth.getPrincipal();
         MDC.put(USER_ID, user.id().toString());
         String accessToken = jwtProvider.generateAccessToken(user);
+        UUID deviceId = UUID.randomUUID();
         String refreshToken = refreshTokenService.createRefreshToken(user.id(), deviceId).token();
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .deviceId(deviceId)
                 .user(LoginResponse.User.builder()
                         .id(user.id())
                         .nickname(user.nickname())

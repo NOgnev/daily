@@ -17,7 +17,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register({ nickname, password });
+      await register(nickname, password);
       navigate('/profile');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');

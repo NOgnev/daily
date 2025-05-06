@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { LoginData } from '../../types/authTypes';
 
 const Login = () => {
   const [nickname, setNickname] = useState('');
@@ -15,13 +14,8 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
-    const userData: LoginData = {
-      nickname,
-      password,
-    };
-
     try {
-      await login(userData);
+      await login(nickname, password);
       navigate('/profile');
     } catch (err) {
       setError('Invalid nickname or password');

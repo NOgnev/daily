@@ -1,5 +1,6 @@
 package com.klaxon.diary.error;
 
+import com.klaxon.diary.config.log.Log;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
+    @Log
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ErrorResponse> appException(AppException e) {
         ErrorRegistry exceptionError = e.getError();
@@ -36,11 +38,13 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(e.getHttpStatus() != null ? e.getHttpStatus() : statusCode).body(new ErrorResponse(error, message));
     }
 
+    @Log
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> unauthorizedError(Throwable t) {
         return ResponseEntity.status(UNAUTHORIZED).body(new ErrorResponse(UNAUTHORIZED.name(), t.getMessage()));
     }
 
+    @Log
     @ExceptionHandler({
             MissingServletRequestParameterException.class,
             ServletRequestBindingException.class,
@@ -54,6 +58,7 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), t.getMessage()));
     }
 
+    @Log
     @ExceptionHandler({
             NoHandlerFoundException.class,
             NoResourceFoundException.class
@@ -63,6 +68,7 @@ public class ExceptionHandlerAdvice {
     }
 
 
+    @Log
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorResponse> handle(Throwable t) {
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ErrorResponse(INTERNAL_SERVER_ERROR.name(), t.getMessage()));
