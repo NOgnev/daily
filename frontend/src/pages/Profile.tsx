@@ -87,15 +87,10 @@ const Profile = () => {
           </div>
 
           <div className="mb-4">
-            <h6>Security</h6>
             <hr />
             <Button variant="outline-danger" onClick={logout}>
-              Logout from all devices
+              Logout
             </Button>
-          </div>
-
-          <div className="text-muted small mt-4">
-            <p>Date: {new Date().toLocaleDateString()}</p>
           </div>
         </Card.Body>
       </Card>

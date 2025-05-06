@@ -31,12 +31,9 @@ const Header = () => {
           </Nav>
           <Nav>
             {user ? (
-            <>
               <Navbar.Text className="nav-link">
                 Signed in as: {user?.nickname}
               </Navbar.Text>
-              <Button variant="outline-light" size="sm" onClick={handleLogout}>Logout</Button>
-            </>
             ) : (
               <>
                 <Nav.Link as={Link} to="/login" eventKey="4">Login</Nav.Link>
