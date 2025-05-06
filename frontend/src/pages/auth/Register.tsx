@@ -19,6 +19,9 @@ const Register = () => {
     try {
       await register(nickname, password);
       navigate('/profile');
+
+      // Прокрутка страницы наверх после навигации
+      window.scrollTo(0, 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {

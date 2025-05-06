@@ -20,6 +20,8 @@ const Login = () => {
     try {
       await login(nickname, password);
       navigate(from, { replace: true });
+      // Прокрутка страницы наверх после навигации
+      window.scrollTo(0, 0);
     } catch (err) {
       setError('Invalid nickname or password');
     }
