@@ -17,25 +17,25 @@ const Header = () => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" sticky="top" expanded={expanded} onToggle={setExpanded} collapseOnSelect>
       <Container>
-        <Navbar.Brand as={Link} to="/">My App</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/">DiaryAi</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/about" eventKey="1">About</Nav.Link>
             {user && (
                 <>
                     <Nav.Link as={Link} to="/profile" eventKey="2">Profile</Nav.Link>
                     <Nav.Link as={Link} to="/diary" eventKey="3">Diary</Nav.Link>
                 </>
             )}
+            <Nav.Link as={Link} to="/about" eventKey="1">About</Nav.Link>
           </Nav>
           <Nav>
             {user ? (
             <>
-              <Navbar.Text className="me-2">
+              <Navbar.Text className="nav-link">
                 Signed in as: {user?.nickname}
               </Navbar.Text>
-              <Button variant="outline-light" onClick={handleLogout}>Logout</Button>
+              <Button variant="outline-light" size="sm" onClick={handleLogout}>Logout</Button>
             </>
             ) : (
               <>
