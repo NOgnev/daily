@@ -32,7 +32,7 @@ const Header = () => {
           </Nav>
           <Nav>
             {user ? (
-              <Nav.Link as={Link} to="/profile" active={isActive('/profile')} eventKey="3">Signed in as: {user?.nickname}</Nav.Link>
+                <Nav.Link as={Link} to="/profile" active={isActive('/profile')} eventKey="3">{user?.nickname}</Nav.Link>
             ) : (
               <>
                 <Nav.Link as={Link} to="/login" active={isActive('/login')} eventKey="4">Login</Nav.Link>
