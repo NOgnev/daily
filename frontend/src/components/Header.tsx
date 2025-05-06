@@ -23,7 +23,10 @@ const Header = () => {
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/about" eventKey="1">About</Nav.Link>
             {user && (
-              <Nav.Link as={Link} to="/profile" eventKey="2">Profile</Nav.Link>
+                <>
+                    <Nav.Link as={Link} to="/profile" eventKey="2">Profile</Nav.Link>
+                    <Nav.Link as={Link} to="/diary" eventKey="3">Diary</Nav.Link>
+                </>
             )}
           </Nav>
           <Nav>
@@ -36,8 +39,8 @@ const Header = () => {
             </>
             ) : (
               <>
-                <Nav.Link as={Link} to="/login" eventKey="3">Login</Nav.Link>
-                <Nav.Link as={Link} to="/register" eventKey="4">Register</Nav.Link>
+                <Nav.Link as={Link} to="/login" eventKey="4">Login</Nav.Link>
+                <Nav.Link as={Link} to="/register" eventKey="5">Register</Nav.Link>
               </>
             )}
           </Nav>

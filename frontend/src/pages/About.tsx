@@ -2,7 +2,7 @@ import { Container, Card, ListGroup } from 'react-bootstrap';
 
 const About = () => {
   return (
-    <Container className="mt-5">
+    <Container className="mt-5 fade-in">
       <Card className="shadow-sm">
         <Card.Body>
           <Card.Title className="mb-4">About Our Service</Card.Title>

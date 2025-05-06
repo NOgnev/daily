@@ -27,7 +27,7 @@ const Register = () => {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+    <Container className="d-flex justify-content-center align-items-center fade-in" style={{ minHeight: '100vh' }}>
       <Card className="w-100" style={{ maxWidth: '400px' }}>
         <Card.Body>
           <h2 className="text-center mb-4">Create Account</h2>

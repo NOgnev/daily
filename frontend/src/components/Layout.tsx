@@ -4,7 +4,7 @@ import Header from './Header';
 
 const Layout = () => {
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column min-vh-100 fade-in">
       <Header />
       <Container className="flex-grow-1 mt-4">
         <Outlet /> {/* Здесь будут отображаться дочерние страницы */}

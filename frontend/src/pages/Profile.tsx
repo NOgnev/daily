@@ -56,7 +56,7 @@ const Profile = () => {
   }
 
   return (
-    <Container className="mt-5">
+    <Container className="mt-5 fade-in">
       <Card className="shadow-sm">
         <Card.Body>
           <Card.Title className="mb-4">User Profile</Card.Title>

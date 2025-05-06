@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Login = () => {
   const [nickname, setNickname] = useState('');
@@ -9,6 +9,9 @@ const Login = () => {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || '/profile';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,14 +19,14 @@ const Login = () => {
 
     try {
       await login(nickname, password);
-      navigate('/profile');
+      navigate(from, { replace: true });
     } catch (err) {
       setError('Invalid nickname or password');
     }
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+    <Container className="d-flex justify-content-center align-items-center fade-in" style={{ minHeight: '100vh' }}>
       <Card className="w-100" style={{ maxWidth: '400px' }}>
         <Card.Body>
           <h2 className="text-center mb-4">Log In</h2>
