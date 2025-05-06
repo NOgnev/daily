@@ -28,7 +28,7 @@ const Login = () => {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center fade-in" style={{ minHeight: '100vh' }}>
+    <Container className="d-flex justify-content-center align-items-center fade-in" style={{ minHeight: '60vh' }}>
       <Card className="w-100" style={{ maxWidth: '400px' }}>
         <Card.Body>
           <h2 className="text-center mb-4">Log In</h2>
@@ -61,7 +61,7 @@ const Login = () => {
             </Button>
           </Form>
           <div className="w-100 text-center mt-3">
-            <Link to="/register">Don't have an account? Register</Link>
+            Don't have an account? <Link to="/register">Register</Link>
           </div>
         </Card.Body>
       </Card>
