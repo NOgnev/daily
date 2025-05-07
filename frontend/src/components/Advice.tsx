@@ -8,7 +8,7 @@ interface AdviceProps {
 
 const Advice: React.FC<AdviceProps> = ({ title, text }) => {
   return (
-    <Card bg="info" className="fade-in mb-2 shadow-lg">
+    <Card bg="light" border="info" className="fade-in mb-2 shadow-sm">
       <Card.Body>
         <Card.Title>{title}</Card.Title>
         <Card.Text>
