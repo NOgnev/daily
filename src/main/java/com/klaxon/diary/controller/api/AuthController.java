@@ -1,6 +1,7 @@
 package com.klaxon.diary.controller.api;
 
 import com.klaxon.diary.config.log.Log;
+import com.klaxon.diary.config.log.hidden.Hidden;
 import com.klaxon.diary.dto.request.AuthRequest;
 import com.klaxon.diary.dto.response.LoginResponse;
 import com.klaxon.diary.dto.response.RefreshResponse;
@@ -61,7 +62,7 @@ public class AuthController {
 
     @Log
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponse> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) String refreshToken,
+    public ResponseEntity<RefreshResponse> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) @Hidden String refreshToken,
                                                    HttpServletResponse response) {
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),
