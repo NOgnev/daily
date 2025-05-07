@@ -1,5 +1,5 @@
 import Advice from '../components/Advice';
-import { Container } from 'react-bootstrap';
+import { Container, Card } from 'react-bootstrap';
 
 const Diary = () => {
     const cardData = [
@@ -10,11 +10,16 @@ const Diary = () => {
 
   return (
     <Container className="mt-5 fade-in">
-        <div>
-          {cardData.map((card, index) => (
-            <Advice key={index} title={card.title} text={card.text} />
-          ))}
-        </div>
+      <Card className="shadow-sm">
+        <Card.Body>
+          <Card.Title className="mb-4">Advices</Card.Title>
+          <div>
+              {cardData.map((card, index) => (
+                  <Advice key={index} title={card.title} text={card.text} />
+              ))}
+          </div>
+        </Card.Body>
+      </Card>
     </Container>
   );
 };
