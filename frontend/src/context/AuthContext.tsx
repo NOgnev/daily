@@ -7,8 +7,8 @@ import useStorageListener from '../hooks/useStorageListener';
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // пока непонятно зачем
+  const [user, setUser] = useState<User | null | undefined>(undefined);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(null);
         localStorage.removeItem('user');
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
     loadUser();
@@ -60,36 +60,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 //     return () => clearInterval(interval);
 //   }, []);
 
-const handleRegister = useCallback(async (nickname: string, password: string) => {
-    setIsLoading(true);
+  const handleRegister = useCallback(async (nickname: string, password: string) => {
+    setLoading(true);
     try {
       await authApi.register(nickname, password); // Register the user
       // Immediately log in the user after successful registration
       const loginUser = await authApi.login(nickname, password);
       localStorage.setItem('user', JSON.stringify(loginUser));
       setUser(loginUser);
-    } catch (error) {
-      console.error('Registration or login failed:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, []);
 
   const handleLogin = useCallback(async (nickname: string, password: string) => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const loginUser = await authApi.login(nickname, password);
       localStorage.setItem('user', JSON.stringify(loginUser));
       setUser(loginUser);
-    } catch (error) {
-      console.error('Login failed:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, []);
 
   const handleLogout = useCallback(async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       await authApi.logout();
       localStorage.removeItem('user');
@@ -97,17 +93,16 @@ const handleRegister = useCallback(async (nickname: string, password: string) =>
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, []);
 
   const value = useMemo(() => ({
     user,
-    isLoading,
     login: handleLogin,
     register: handleRegister,
     logout: handleLogout
-  }), [user, isLoading, handleLogin, handleRegister, handleLogout]);
+  }), [user, handleLogin, handleRegister, handleLogout]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -4,10 +4,10 @@ import { Spinner, Container } from 'react-bootstrap';
 import React from 'react';
 
 const PrivateRoute = () => {
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
 
-  if (isLoading) {
+  if (user === undefined) {
     return (
           <Container className="d-flex justify-content-center mt-5">
             <Spinner animation="border" />

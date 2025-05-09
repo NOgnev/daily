@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Form, Button, Container, Card, Alert, Spinner } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { handleApiError } from '../../utils/handleApiError'; // Импортируем обработчик ошибок
 
 const Register = () => {
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Register = () => {
       // Прокрутка страницы наверх после навигации
       window.scrollTo(0, 0);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
+      handleApiError(err, setError);
     } finally {
       setLoading(false);
     }

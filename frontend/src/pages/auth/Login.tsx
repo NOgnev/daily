@@ -1,21 +1,24 @@
 import { useState } from 'react';
-import { Form, Button, Container, Card, Alert } from 'react-bootstrap';
+import { Form, Button, Container, Card, Alert, Spinner } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { handleApiError } from '../../utils/handleApiError'; // Импортируем обработчик ошибок
 
 const Login = () => {
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [loading, setLoading] = useState(false);
 
   const from = location.state?.from?.pathname || '/profile';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
       await login(nickname, password);
@@ -23,7 +26,9 @@ const Login = () => {
       // Прокрутка страницы наверх после навигации
       window.scrollTo(0, 0);
     } catch (err) {
-      setError('Invalid nickname or password');
+      handleApiError(err, setError);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,8 +61,13 @@ const Login = () => {
               />
             </Form.Group>
 
-            <Button variant="primary" type="submit" className="w-100">
-              Log In
+            <Button
+              variant="primary"
+              type="submit"
+              className="w-100"
+              disabled={loading}
+            >
+              {loading ? <Spinner animation="border" size="sm" /> : 'Log In'}
             </Button>
           </Form>
           <div className="w-100 text-center mt-3">
