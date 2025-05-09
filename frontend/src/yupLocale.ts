@@ -24,7 +24,7 @@ Yup.setLocale({
 export const nicknameSchema = Yup.string()
   .min(3)
   .max(20)
-  .matches(/^[a-zA-Z0-9_]+$/)
+  .matches(/^[a-zA-Z0-9_.]+$/)
   .required();
 
 export const passwordSchema = Yup.string()

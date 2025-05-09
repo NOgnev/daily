@@ -21,7 +21,7 @@ const resources = {
       'validation.required': 'This field is required',
       'validation.min': 'Minimum {{min}} characters',
       'validation.max': 'Maximum {{max}} characters',
-      'validation.matches.nickname': 'Nickname can contain only letters, digits, and underscores',
+      'validation.matches.nickname': 'Nickname can contain only letters, digits, underscores, and periods',
       'validation.matches.password': 'Password must include at least one uppercase letter, one number, and one special character (@$!%*?&)',
       'validation.matches.default': 'Invalid format',
     },
@@ -46,7 +46,7 @@ const resources = {
       'validation.max': 'Максимум {{max}} символов',
 
       // Разные сообщения для matches
-      'validation.matches.nickname': 'Никнейм может содержать только буквы латинского алфавита, цифры и символ подчёркивания',
+      'validation.matches.nickname': 'Никнейм может содержать только буквы латинского алфавита, цифры, точку и символ подчёркивания',
       'validation.matches.password': 'Пароль должен содержать хотя бы одну заглавную букву, одну цифру и один специальный символ (@$!%*?&)',
       'validation.matches.default': 'Неверный формат',
     },

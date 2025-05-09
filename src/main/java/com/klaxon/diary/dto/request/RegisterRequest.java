@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public record RegisterRequest(@NotBlank(message = "Nickname is required")
                               @Size(min = 3, max = 20, message = "Nickname must be between 3 and 20 characters")
-                              @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Nickname can contain only letters, digits, and underscores")
+                              @Pattern(regexp = "^[a-zA-Z0-9_.]+$", message = "Nickname can contain only letters, digits, underscores, and periods")
                               String nickname,
                               @NotBlank(message = "Password is required")
                               @Size(min = 8, message = "Password must be at least 8 characters long")
