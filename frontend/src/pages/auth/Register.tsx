@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Form, Button, Container, Card, Alert, Spinner } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { handleApiError } from '../../utils/handleApiError'; // Импортируем обработчик ошибок
+import { handleApiError } from '../../utils/handleApiError';
+import { validateForm, registerSchema } from '../../utils/validateForm';
 
 const Register = () => {
-  const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<{ nickname?: string; password?: string }>({});
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -17,11 +19,18 @@ const Register = () => {
     setError('');
     setLoading(true);
 
+    const { isValid, errors } = await validateForm(registerSchema, { nickname, password });
+    if (!isValid) {
+      setFormErrors(errors);
+      setLoading(false);
+      return;
+    }
+
+    setFormErrors({}); // 🧼 Сброс ошибок после успешной валидации
+
     try {
       await register(nickname, password);
       navigate('/profile');
-
-      // Прокрутка страницы наверх после навигации
       window.scrollTo(0, 0);
     } catch (err) {
       handleApiError(err, setError);
@@ -36,6 +45,7 @@ const Register = () => {
         <Card.Body>
           <h2 className="text-center mb-4">Create Account</h2>
           {error && <Alert variant="danger">{error}</Alert>}
+
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="formNickname">
               <Form.Label>Nickname</Form.Label>
@@ -44,8 +54,11 @@ const Register = () => {
                 placeholder="Enter nickname"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                required
+                isInvalid={!!formErrors.nickname}
               />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.nickname}
+              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPassword">
@@ -55,20 +68,18 @@ const Register = () => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                minLength={6}
-                required
+                isInvalid={!!formErrors.password}
               />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.password}
+              </Form.Control.Feedback>
             </Form.Group>
 
-            <Button
-              variant="primary"
-              type="submit"
-              className="w-100"
-              disabled={loading}
-            >
+            <Button variant="primary" type="submit" className="w-100" disabled={loading}>
               {loading ? <Spinner animation="border" size="sm" /> : 'Register'}
             </Button>
           </Form>
+
           <div className="w-100 text-center mt-3">
             Already have an account? <Link to="/login">Log In</Link>
           </div>

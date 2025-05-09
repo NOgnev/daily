@@ -4,7 +4,7 @@ import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.config.log.hidden.Hidden;
 import com.klaxon.diary.config.security.JwtProvider;
 import com.klaxon.diary.dto.AuthUser;
-import com.klaxon.diary.dto.request.AuthRequest;
+import com.klaxon.diary.dto.request.LoginRequest;
 import com.klaxon.diary.dto.response.LoginResponse;
 import com.klaxon.diary.error.AppException;
 import com.klaxon.diary.repository.UserRepository;
@@ -52,7 +52,7 @@ public class AuthService {
     }
 
     @Log
-    public LoginResponse login(AuthRequest request) {
+    public LoginResponse login(LoginRequest request) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.nickname(), request.password())
         );

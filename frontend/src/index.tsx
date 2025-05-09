@@ -7,6 +7,8 @@ import App from './App';
 import 'react-bootstrap/dist/react-bootstrap.min.js'
 import './bootstrap.min.css'
 import reportWebVitals from './reportWebVitals';
+import './i18n';
+import './yupLocale';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

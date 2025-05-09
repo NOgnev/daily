@@ -2,12 +2,14 @@ package com.klaxon.diary.controller.api;
 
 import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.config.log.hidden.Hidden;
-import com.klaxon.diary.dto.request.AuthRequest;
+import com.klaxon.diary.dto.request.LoginRequest;
+import com.klaxon.diary.dto.request.RegisterRequest;
 import com.klaxon.diary.dto.response.LoginResponse;
 import com.klaxon.diary.dto.response.RefreshResponse;
 import com.klaxon.diary.service.AuthService;
 import com.klaxon.diary.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +39,7 @@ public class AuthController {
 
     @Log
     @PostMapping("/register")
-    public ResponseEntity<LoginResponse.User> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<LoginResponse.User> register(@RequestBody @Valid RegisterRequest request) {
         var user = authService.register(request.nickname(), request.password());
         return ResponseEntity.ok()
                 .body(LoginResponse.User.builder()
@@ -48,7 +50,7 @@ public class AuthController {
 
     @Log
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse.User> login(@RequestBody AuthRequest request,
+    public ResponseEntity<LoginResponse.User> login(@RequestBody @Valid LoginRequest request,
                                                     HttpServletResponse response) {
         LoginResponse login = authService.login(request);
         attachCookie(response, ACCESS_TOKEN_COOKIE, login.accessToken(),
@@ -62,7 +64,9 @@ public class AuthController {
 
     @Log
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponse> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) @Hidden String refreshToken,
+    public ResponseEntity<RefreshResponse> refresh(@Hidden
+                                                   @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false)
+                                                   String refreshToken,
                                                    HttpServletResponse response) {
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),

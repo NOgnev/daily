@@ -4,9 +4,11 @@ import com.klaxon.diary.config.log.Log;
 import com.klaxon.diary.dto.AuthUser;
 import com.klaxon.diary.dto.RefreshToken.Device;
 import com.klaxon.diary.service.DeviceService;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+@Validated
 @RestController
 @RequestMapping("/api/device")
 @RequiredArgsConstructor
@@ -36,7 +39,7 @@ public class DeviceController {
 
     @Log
     @DeleteMapping("/{deviceId}")
-    public ResponseEntity<Void> revokeDevice(@PathVariable UUID deviceId,
+    public ResponseEntity<Void> revokeDevice(@PathVariable @NotBlank UUID deviceId,
                                              @AuthenticationPrincipal AuthUser userDetails) {
         deviceService.revokeDevice(userDetails.id(), deviceId);
         return ResponseEntity.ok().build();

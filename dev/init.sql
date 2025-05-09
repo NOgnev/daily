@@ -23,7 +23,7 @@ GRANT USAGE ON SCHEMA "user" TO diary;
 
 CREATE TABLE IF NOT EXISTS "user".user (
     id UUID PRIMARY KEY,
-    nickname VARCHAR(50) UNIQUE NOT NULL,
+    nickname VARCHAR(20) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ,

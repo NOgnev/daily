@@ -2,6 +2,7 @@ package com.klaxon.diary.error;
 
 import com.klaxon.diary.config.log.Log;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -45,12 +46,18 @@ public class ExceptionHandlerAdvice {
     }
 
     @Log
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        var error = ex.getBindingResult().getFieldErrors().stream().findFirst().get();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), error.getDefaultMessage()));
+    }
+
+    @Log
     @ExceptionHandler({
             MissingServletRequestParameterException.class,
             ServletRequestBindingException.class,
             TypeMismatchException.class,
             HttpMessageNotReadableException.class,
-            MethodArgumentNotValidException.class,
             MissingServletRequestPartException.class,
             BindException.class
     })

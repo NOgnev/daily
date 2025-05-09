@@ -5,6 +5,7 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
+      // API ошибки
       'USER_NOT_FOUND': 'User not found',
       'USER_ALREADY_EXISTS': 'User already exists',
       'BAD_REQUEST': 'Bad request',
@@ -15,10 +16,19 @@ const resources = {
       'UNKNOWN_ERROR': 'Unknown error',
       'UNAUTHORIZED': 'Bad credentials',
       'REFRESH_TOKEN_INVALID': 'Authentication error',
+
+      // Валидация
+      'validation.required': 'This field is required',
+      'validation.min': 'Minimum {{min}} characters',
+      'validation.max': 'Maximum {{max}} characters',
+      'validation.matches.nickname': 'Nickname can contain only letters, digits, and underscores',
+      'validation.matches.password': 'Password must include at least one uppercase letter, one number, and one special character (@$!%*?&)',
+      'validation.matches.default': 'Invalid format',
     },
   },
   ru: {
     translation: {
+      // API ошибки
       'USER_NOT_FOUND': 'Пользователь не найден',
       'USER_ALREADY_EXISTS': 'Пользователь уже существует',
       'BAD_REQUEST': 'Неверный запрос',
@@ -29,6 +39,16 @@ const resources = {
       'UNKNOWN_ERROR': 'Неизвестная ошибка',
       'UNAUTHORIZED': 'Неверные учетные данные пользователя',
       'REFRESH_TOKEN_INVALID': 'Ошибка аутентификации',
+
+      // Валидация
+      'validation.required': 'Это поле обязательно',
+      'validation.min': 'Минимум {{min}} символа',
+      'validation.max': 'Максимум {{max}} символов',
+
+      // Разные сообщения для matches
+      'validation.matches.nickname': 'Никнейм может содержать только буквы латинского алфавита, цифры и символ подчёркивания',
+      'validation.matches.password': 'Пароль должен содержать хотя бы одну заглавную букву, одну цифру и один специальный символ (@$!%*?&)',
+      'validation.matches.default': 'Неверный формат',
     },
   },
 };
