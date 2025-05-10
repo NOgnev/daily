@@ -5,7 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import './index.scss';
 import App from './App';
 import 'react-bootstrap/dist/react-bootstrap.min.js'
-import './bootstrap.min.css'
+import './index.scss';
 import reportWebVitals from './reportWebVitals';
 import './i18n';
 import './yupLocale';
