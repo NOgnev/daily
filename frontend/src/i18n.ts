@@ -16,6 +16,7 @@ const resources = {
       'UNKNOWN_ERROR': 'Unknown error',
       'UNAUTHORIZED': 'Bad credentials',
       'REFRESH_TOKEN_INVALID': 'Authentication error',
+      'NETWORK_ERROR': 'Network error. Check your connection',
 
       // Валидация
       'validation.required': 'This field is required',
@@ -39,6 +40,7 @@ const resources = {
       'UNKNOWN_ERROR': 'Неизвестная ошибка',
       'UNAUTHORIZED': 'Неверные учетные данные пользователя',
       'REFRESH_TOKEN_INVALID': 'Ошибка аутентификации',
+      'NETWORK_ERROR': 'Сетевая ошибка. Проверьте подключение',
 
       // Валидация
       'validation.required': 'Это поле обязательно',

@@ -13,6 +13,11 @@ export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError<ErrorResponse>(error)) {
     const errorData = error.response?.data;
 
+    // Если ошибка связана с сетью (например, сервер недоступен)
+    if (!error.response) {
+      return i18n.t('NETWORK_ERROR');
+    }
+
     if (errorData?.error) {
       const translated = i18n.t(errorData.error);
 

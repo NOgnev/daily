@@ -7,6 +7,7 @@ import Register from './pages/auth/Register'
 import About from './pages/About'
 import Profile from './pages/Profile'
 import Diary from './pages/Diary'
+import Daily from './pages/Daily'
 
 function App() {
     return (
@@ -22,6 +23,7 @@ function App() {
               <Route element={<PrivateRoute />}>
                 <Route path="profile" element={<Profile />} />
                 <Route path="diary" element={<Diary />} />
+                <Route path="daily" element={<Daily />} />
               </Route>
 
               <Route path="about" element={<About />} />

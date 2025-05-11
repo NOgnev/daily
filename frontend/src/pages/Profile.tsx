@@ -5,11 +5,12 @@ import { useState } from 'react';
 import { deviceApi } from '../api/deviceApi';
 import { Device } from '../types/authTypes';
 import useStorageListener from '../hooks/useStorageListener';
+import { handleApiError } from '../utils/handleApiError';
 
 const Profile = () => {
   const { user, logout } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [devices, setDevices] = useState<Device[] | null>(null);
 
   const fetchDevices = useCallback(async () => {
@@ -18,7 +19,7 @@ const Profile = () => {
           const devices = await deviceApi.getDevices();
           setDevices(devices);
       } catch (err) {
-          setError(err instanceof Error? err.message : 'Something went wrong');
+          handleApiError(err, setError);
       } finally {
           setLoading(false);
       }

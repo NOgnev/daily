@@ -1,6 +1,6 @@
 import React, { useState, useEffect, forwardRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Spinner, Alert, Button, Card, Form, Accordion } from 'react-bootstrap';
+import { Container, Row, Col, Spinner, Alert, Button, Card, Form, Accordion, Tab, Tabs, Nav } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import '../diary.scss';
@@ -21,6 +21,8 @@ const ChatPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [text, setText] = useState("");
+
+  const [activeKey, setActiveKey] = useState<string>('dialog');
 
   // Форматирование даты: dd-mm-yyyy
   function formatDate(date: Date): string {
@@ -90,18 +92,158 @@ const ChatPage: React.FC = () => {
           calendarStartDay={1}
           customInput={<CustomDateButton />}
         />
-        <Accordion defaultActiveKey="0">
+        {/*
+            <Tab.Container activeKey={activeKey} onSelect={(key) => setActiveKey(key as string)}>
+              <Nav variant="underline" className="mt-3">
+                <Nav.Item>
+                  <Nav.Link eventKey="dialog">Обсудим как прошел твой день?</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="bookmark">Дневная заметка</Nav.Link>
+                </Nav.Item>
+              </Nav>
+
+              <Tab.Content>
+                <Tab.Pane eventKey="dialog">
+                  <Card>
+                    <Card.Body>
+                      <Card.Title className="mb-2">Как прошел твой день?</Card.Title>
+                      <Card.Text>
+                        Welcome to our secure SPA application with JWT authentication.
+                        This demo showcases best practices for React and Spring Boot integration.
+                      </Card.Text>
+
+                      <Card.Title className="mb-2">Как дела на работе?</Card.Title>
+                      <Card.Text>
+                        Welcome to our secure SPA application with JWT authentication.
+                        This demo showcases best practices for React and Spring Boot integration.
+                        Welcome to our secure SPA application with JWT authentication.
+                      </Card.Text>
+
+                      <Card.Title className="mb-2">Что нового?</Card.Title>
+                      <Form>
+                        <Form.Group className="mb-4" controlId="exampleForm.ControlTextarea1">
+                          <Form.Control placeholder="Все отлично..." as="textarea" rows={3} />
+                        </Form.Group>
+                        <Button variant="primary" type="submit" disabled={loading}>
+                          {loading ? <Spinner animation="border" size="sm" /> : 'Send'}
+                        </Button>
+                      </Form>
+
+                      <Card.Title
+                        className="mt-3 text-center bg-warning text-white"
+                        style={{ display: 'block', width: '100%', padding: '10px' }}
+                      >
+                        Подведем итог дня
+                      </Card.Title>
+                      <Card.Text>
+                        Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                        Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                        Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Tab.Pane>
+
+                <Tab.Pane eventKey="bookmark">
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>Запиши что-нибудь</Card.Title>
+                      <Form>
+                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                          <Form.Control
+                            placeholder="Все отлично..."
+                            as="textarea"
+                            rows={5}
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                          />
+                        </Form.Group>
+                        <Button variant="primary" type="submit" disabled={loading}>
+                          {loading ? <Spinner animation="border" size="sm" /> : 'Save'}
+                        </Button>
+                      </Form>
+                    </Card.Body>
+                  </Card>
+                </Tab.Pane>
+              </Tab.Content>
+            </Tab.Container>
+*/} {/*
+        <Tabs
+          defaultActiveKey="dialog"
+          id="uncontrolled-tab-example"
+          className="mb-3"
+        >
+          <Tab eventKey="dialog" title="Обсудим как прошел твой день?">
+                                    <Card.Title className="mb-2" >Как прошел твой день?</Card.Title>
+                                    <Card.Text>
+                                    Welcome to our secure SPA application with JWT authentication.
+                                    This demo showcases best practices for React and Spring Boot integration.
+                                    </Card.Text>
+
+                                    <Card.Title className="mb-2">Как дела на работе?</Card.Title>
+                                    <Card.Text>
+                                    Welcome to our secure SPA application with JWT authentication.
+                                    This demo showcases best practices for React and Spring Boot integration.
+                                    Welcome to our secure SPA application with JWT authentication.
+                                    This demo showcases best practices for React and Spring Boot integration.
+                                    </Card.Text>
+
+                                    <Card.Title className="mb-2">Что нового?</Card.Title>
+                                    <Form>
+                                        <Form.Group className="mb-4" controlId="exampleForm.ControlTextarea1">
+                                            <Form.Control placeholder="Все отлично..." as="textarea" rows={3} />
+                                        </Form.Group>
+                                        <Button variant="primary" type="submit"  disabled={loading}>
+                                            {loading ? <Spinner animation="border" size="sm" /> : 'Send'}
+                                        </Button>
+                                    </Form>
+
+                                    <Card.Title
+                                      className="mt-3 text-center bg-warning text-white"
+                                      style={{ display: 'block', width: '100%', padding: '10px' }}
+                                    >
+                                    Подведем итог дня
+                                    </Card.Title>
+                                    <Card.Text>
+                                        Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                                        Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                                        Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                                        Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                                        Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                                    </Card.Text>
+          </Tab>
+          <Tab eventKey="bookmark" title="Дневная заметка">
+                                <Card.Title>Запиши что-нибудь</Card.Title>
+                                    <Form>
+                                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                                        <Form.Control
+                                            placeholder="Все отлично..."
+                                            as="textarea"
+                                            rows={5}
+                                            value={text}
+                                            onChange={(e) => setText(e.target.value)}
+                                            />
+                                        </Form.Group>
+                                        <Button variant="primary" type="submit"  disabled={loading}>
+                                            {loading ? <Spinner animation="border" size="sm" /> : 'Save'}
+                                        </Button>
+                                    </Form>
+          </Tab>
+        </Tabs>
+*/}
+        <Accordion >
             <Accordion.Item eventKey="0">
             <Accordion.Header>Обсудим как прошел твой день?</Accordion.Header>
                 <Accordion.Body>
 
-                        <Card.Title className="mb-1" >Как прошел твой день?</Card.Title>
+                        <Card.Title className="mb-2" >Как прошел твой день?</Card.Title>
                         <Card.Text>
                         Welcome to our secure SPA application with JWT authentication.
                         This demo showcases best practices for React and Spring Boot integration.
                         </Card.Text>
 
-                        <Card.Title className="mb-1">Как дела на работе?</Card.Title>
+                        <Card.Title className="mb-2">Как дела на работе?</Card.Title>
                         <Card.Text>
                         Welcome to our secure SPA application with JWT authentication.
                         This demo showcases best practices for React and Spring Boot integration.
@@ -109,10 +251,28 @@ const ChatPage: React.FC = () => {
                         This demo showcases best practices for React and Spring Boot integration.
                         </Card.Text>
 
+                        <Card.Title className="mb-2">Что нового?</Card.Title>
+                        <Form>
+                            <Form.Group className="mb-4" controlId="exampleForm.ControlTextarea1">
+                                <Form.Control placeholder="Все отлично..." as="textarea" rows={3} />
+                            </Form.Group>
+                            <Button variant="primary" type="submit"  disabled={loading}>
+                                {loading ? <Spinner animation="border" size="sm" /> : 'Send'}
+                            </Button>
+                        </Form>
 
-                        <Card.Title className="mt-3 text-center bg-warning text-white">Подведем итог дня</Card.Title>
+                        <Card.Title
+                          className="mt-3 text-center bg-warning text-white"
+                          style={{ display: 'block', width: '100%', padding: '10px' }}
+                        >
+                        Подведем итог дня
+                        </Card.Title>
                         <Card.Text>
-                            Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration. Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration. Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration. Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration. Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration. Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration. Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration. Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration. Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                            Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                            Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                            Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                            Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
+                            Welcome to our secure SPA application with JWT authentication. This demo showcases best practices for React and Spring Boot integration.
                         </Card.Text>
                 </Accordion.Body>
             </Accordion.Item>

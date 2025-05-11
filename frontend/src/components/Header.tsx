@@ -26,7 +26,10 @@ const Header = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             {user && (
-              <Nav.Link as={Link} to="/diary" active={isActive('/diary')} eventKey="1">Diary</Nav.Link>
+                <>
+                    <Nav.Link as={Link} to="/diary" active={isActive('/diary')} eventKey="1">Diary</Nav.Link>
+                    <Nav.Link as={Link} to="/daily" active={isActive('/daily')} eventKey="6">Daily</Nav.Link>
+                </>
             )}
             <Nav.Link as={Link} to="/about" active={isActive('/about')} eventKey="2">About</Nav.Link>
           </Nav>
