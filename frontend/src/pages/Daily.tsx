@@ -75,10 +75,10 @@ const EditorPage: React.FC = () => {
 };
 
 const BottomNav: React.FC<{ mode: string; setMode: (m: 'daily' | 'editor') => void }> = ({ mode, setMode }) => (
-  <div className="bottom-nav d-flex justify-content-around border-top bg-secondary py-2 fixed-bottom slide-in">
+  <div className="bottom-nav d-flex justify-content-around border-top bg-secondary fixed-bottom slide-in">
     <Button
       variant="link"
-      style={{ textDecoration: 'none' }}
+      style={{ color: mode === 'daily' ? 'white' : 'silver', textDecoration: 'none' }}
       onClick={() => setMode('daily')}
       className="d-flex flex-column align-items-center p-2 mx-2 my-1"
     >
@@ -87,12 +87,12 @@ const BottomNav: React.FC<{ mode: string; setMode: (m: 'daily' | 'editor') => vo
       ) : (
         <House className="fs-3" />
       )}
-      <small>Опрос</small>
+      <span style={{ fontSize: '0.8em' }}>Опрос</span>
     </Button>
 
     <Button
       variant="link"
-      style={{ textDecoration: 'none' }}
+      style={{ color: mode === 'editor' ? 'white' : 'silver', textDecoration: 'none' }}
       onClick={() => setMode('editor')}
       className="d-flex flex-column align-items-center p-2 mx-2 my-1"
     >
@@ -101,7 +101,7 @@ const BottomNav: React.FC<{ mode: string; setMode: (m: 'daily' | 'editor') => vo
       ) : (
         <Pencil className="fs-3" />
       )}
-      <small>Редактор</small>
+      <span style={{ fontSize: '0.8em' }}>Редактор</span>
     </Button>
   </div>
 );
