@@ -76,7 +76,7 @@ const Profile = () => {
             {devices ? (
               <ListGroup>
                 {devices.map(device => (
-                  <ListGroup.Item className="mb-1 shadow-sm" variant="dark" key={device.id}>
+                  <ListGroup.Item className="mb-1 shadow-sm" variant="info" key={device.id}>
                     <strong>ID:</strong> {device.id} <br />
                     <strong>Expiry Date:</strong> {new Date(device.expiryDate).toLocaleDateString()}
                   </ListGroup.Item>

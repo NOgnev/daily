@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, forwardRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Form, Spinner, Container } from 'react-bootstrap';
 import { HouseFill, PencilSquare } from 'react-bootstrap-icons';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 type ItemType = 'question' | 'final';
 
@@ -93,10 +96,40 @@ const BottomNav: React.FC<{ mode: string; setMode: (m: 'daily' | 'editor') => vo
 );
 
 const Daily: React.FC = () => {
+  const params = useParams<{ date: string }>();
+  const navigate = useNavigate();
+
   const [items, setItems] = useState<Item[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'daily' | 'editor'>('daily');
+  const [selectedDate, setSelectedDate] = useState<Date>(parseDateFromPath(params.date));
+
+  // Кастомный компонент для отображения даты как кнопки
+  const CustomDateButton = forwardRef<HTMLButtonElement, { value?: string; onClick?: () => void }>(
+    ({ value, onClick }, ref) => (
+      <Button variant="outline-dark mb-4" onClick={onClick} ref={ref}>
+        {value}
+      </Button>
+    )
+  );
+  // Обработка выбора даты
+  const handleDateChange = (date: Date | null) => {
+    if (!date) return;
+    setSelectedDate(date);
+    navigate(`/chat/${formatDate(date)}`);
+  };
+  // Форматирование даты: dd-mm-yyyy
+  function formatDate(date: Date): string {
+    return date.toLocaleDateString('ru-RU').replace(/\./g, '-');
+  }
+
+  // Парсинг даты из строки
+  function parseDateFromPath(pathDate?: string): Date {
+    if (!pathDate) return new Date();
+    const [day, month, year] = pathDate.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
 
   useEffect(() => {
     const firstItem: Item = {
@@ -125,6 +158,16 @@ const Daily: React.FC = () => {
 
   return (
     <Container className="mt-5 pb-5"> {/* убран mt-3 для выравнивания с другими страницами */}
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={handleDateChange}
+            //           highlightDates={[subDays(new Date(), 7), addDays(new Date(), 7)]}
+                      dateFormat="dd-MM-yyyy"
+                      withPortal
+                      calendarStartDay={1}
+                      customInput={<CustomDateButton />}
+                    />
+
       <Card className="shadow-sm fade-in">
         <Card.Body>
           {mode === 'daily' && (

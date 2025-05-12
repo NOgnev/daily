@@ -15,6 +15,6 @@ const PublicOnlyRoute = () => {
     );
   }
 
-  return !user ? <Outlet /> : <Navigate to={location.state?.from?.pathname || '/diary'} replace />;
+  return !user ? <Outlet /> : <Navigate to={location.state?.from?.pathname || '/daily'} replace />;
 };
 export default PublicOnlyRoute;
