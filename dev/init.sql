@@ -1,25 +1,25 @@
 -- init.sql
 -- DROP ROLE platform;
 
-CREATE USER diary WITH
+CREATE USER daily WITH
     LOGIN
     NOSUPERUSER
     NOCREATEDB
     NOCREATEROLE
     NOINHERIT
     NOREPLICATION
-    PASSWORD 'diary';
+    PASSWORD 'daily';
 
-GRANT CONNECT ON DATABASE diary TO diary;
+GRANT CONNECT ON DATABASE daily TO daily;
 
--- SCHEMA: diary
+-- SCHEMA: daily
 
--- DROP SCHEMA IF EXISTS diary ;
+-- DROP SCHEMA IF EXISTS daily ;
 
 CREATE SCHEMA IF NOT EXISTS "user"
-    AUTHORIZATION diary;
+    AUTHORIZATION daily;
 
-GRANT USAGE ON SCHEMA "user" TO diary;
+GRANT USAGE ON SCHEMA "user" TO daily;
 
 CREATE TABLE IF NOT EXISTS "user".user (
     id UUID PRIMARY KEY,
@@ -33,9 +33,9 @@ CREATE TABLE IF NOT EXISTS "user".user (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_user_nickname ON "user".user (nickname) WHERE NOT deleted;
 
 ALTER TABLE "user".user
-    OWNER to diary;
+    OWNER to daily;
 
-GRANT SELECT, INSERT, UPDATE ON "user".user TO diary;
+GRANT SELECT, INSERT, UPDATE ON "user".user TO daily;
 
 
 CREATE TABLE IF NOT EXISTS "user".refresh_token (
@@ -52,6 +52,6 @@ CREATE INDEX IF NOT EXISTS idx_refresh_token_expiry_date ON "user".refresh_token
 CREATE UNIQUE INDEX IF NOT EXISTS idx_refresh_token_user_id_device_id ON "user".refresh_token (user_id, device_id);
 
 ALTER TABLE "user".refresh_token
-    OWNER to diary;
+    OWNER to daily;
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON "user".refresh_token TO diary;
+GRANT SELECT, INSERT, UPDATE, DELETE ON "user".refresh_token TO daily;

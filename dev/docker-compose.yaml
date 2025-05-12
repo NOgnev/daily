@@ -5,7 +5,7 @@ services:
     image: postgres:latest
     container_name: postgres_container
     environment:
-      POSTGRES_DB: diary
+      POSTGRES_DB: daily
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     ports:
@@ -23,7 +23,7 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin_container
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@diary.com
+      PGADMIN_DEFAULT_EMAIL: admin@daily.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
