@@ -115,19 +115,19 @@ const Daily: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'daily' | 'editor'>('daily');
   const [selectedDate, setSelectedDate] = useState<Date>(parseDateFromPath(params.date));
+  const [isStarted, setIsStarted] = useState(false); // Состояние для начала опроса
 
   // Прокрутка до конца страницы
   const endOfPageRef = useRef<HTMLDivElement>(null);
 
   // Прокрутка страницы вниз, если добавился новый элемент
   useEffect(() => {
-    // Прокручиваем вниз только если items изменился
     if (items.length > 0 && endOfPageRef.current) {
       endOfPageRef.current.scrollIntoView({
         behavior: 'smooth',
       });
     }
-  }, [items]); // Прокрутка срабатывает при изменении items
+  }, [items]);
 
   const handleSubmit = async () => {
     if (!inputValue.trim()) return;
@@ -174,13 +174,15 @@ const Daily: React.FC = () => {
   }
 
   useEffect(() => {
-    const firstItem: Item = {
-      id: '1',
-      title: 'Привет! Как тебя зовут?',
-      type: 'question',
-    };
-    setItems([firstItem]);
-  }, []);
+    if (isStarted) {
+      const firstItem: Item = {
+        id: '1',
+        title: 'Привет! Как тебя зовут?',
+        type: 'question',
+      };
+      setItems([firstItem]);
+    }
+  }, [isStarted]);
 
   return (
     <Container className="mt-3 fade-in" style={{ paddingBottom: '8rem' }}>
@@ -196,7 +198,14 @@ const Daily: React.FC = () => {
 
       <Card className="shadow-sm fade-in">
         <Card.Body>
-          {mode === 'daily' && (
+          {mode === 'daily' && !isStarted && (
+            <div className="text-left fade-in">
+              <p>Перед началом опроса, пожалуйста, убедитесь, что вы готовы отвечать на вопросы.</p>
+              <Button onClick={() => setIsStarted(true)}>Начать опрос</Button>
+            </div>
+          )}
+
+          {mode === 'daily' && isStarted && (
             <>
               {items.filter(item => item.type !== 'final').map(item => (
                 <MyCard key={item.id} item={item} />
