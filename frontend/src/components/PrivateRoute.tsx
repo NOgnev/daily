@@ -9,7 +9,7 @@ const PrivateRoute = () => {
 
   if (user === undefined) {
     return (
-          <Container className="d-flex justify-content-center mt-5">
+          <Container className="d-flex justify-content-center mt-3">
             <Spinner animation="border" />
           </Container>
     );

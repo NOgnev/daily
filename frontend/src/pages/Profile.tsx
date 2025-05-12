@@ -34,7 +34,7 @@ const Profile = () => {
 
   if (!user) {
     return (
-      <Container className="mt-5">
+      <Container className="mt-3">
         <Alert variant="warning">User not authenticated</Alert>
       </Container>
     );
@@ -42,7 +42,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <Container className="d-flex justify-content-center mt-5">
+      <Container className="d-flex justify-content-center mt-3">
         <Spinner animation="border" />
       </Container>
     );
@@ -50,14 +50,14 @@ const Profile = () => {
 
   if (error) {
     return (
-      <Container className="mt-4">
+      <Container className="mt-3">
         <Alert variant="danger">{error}</Alert>
       </Container>
     );
   }
 
   return (
-    <Container className="mt-5 fade-in">
+    <Container className="mt-3 fade-in">
       <Card className="shadow-sm">
         <Card.Body>
           <Card.Title className="mb-4">User Profile</Card.Title>

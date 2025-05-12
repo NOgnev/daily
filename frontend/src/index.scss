@@ -26,6 +26,17 @@ code {
   }
 }
 
+.slide-in {
+  transform: translateY(100%); /* Начинаем с положения ниже экрана */
+  animation: slideIn 1s forwards;
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateY(0); /* Элемент выезжает на своё место */
+  }
+}
+
 .bottom-nav {
   z-index: 1000;
 }
