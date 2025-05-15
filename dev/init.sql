@@ -55,3 +55,38 @@ ALTER TABLE "user".refresh_token
     OWNER to daily;
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON "user".refresh_token TO daily;
+
+CREATE SCHEMA IF NOT EXISTS daily
+    AUTHORIZATION daily;
+
+GRANT USAGE ON SCHEMA daily TO daily;
+
+CREATE TABLE IF NOT EXISTS daily.note (
+    user_id UUID NOT NULL REFERENCES "user".user (id),
+    date DATE NOT NULL,
+    note VARCHAR(20000),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ,
+
+    PRIMARY KEY (user_id, date)
+);
+
+ALTER TABLE daily.note
+    OWNER to daily;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON daily.note TO daily;
+
+CREATE TABLE IF NOT EXISTS daily.dialog (
+    user_id UUID NOT NULL REFERENCES "user".user (id),
+    date DATE NOT NULL,
+    model VARCHAR(50),
+    messages JSONB NOT NULL DEFAULT '[]',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    PRIMARY KEY (user_id, date)
+);
+
+ALTER TABLE daily.dialog
+    OWNER to daily;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON daily.dialog TO daily;

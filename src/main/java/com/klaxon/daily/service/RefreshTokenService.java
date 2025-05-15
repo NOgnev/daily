@@ -99,7 +99,7 @@ public class RefreshTokenService {
             tokenSize--;
         }
         if (tokenSize >= maxDevicesCount) {
-             log.warn("Too many refresh tokens");
+            log.warn("Too many refresh tokens");
             var oldestToken = tokens.stream()
                     .min(Comparator.comparing(refreshToken -> refreshToken.device().expiryDate()))
                     .get();

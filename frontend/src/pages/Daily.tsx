@@ -1,49 +1,29 @@
 import React, { useEffect, useState, useRef, forwardRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Form, Spinner, Container } from 'react-bootstrap';
 import { House, HouseFill, Pencil, PencilFill } from 'react-bootstrap-icons';
+import { dailyApi, DialogItem, DialogItemType } from '../api/dailyApi';
+import { handleApiError } from '../utils/handleApiError';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import '../daily.scss';
 
-type ItemType = 'question' | 'final';
-
-interface Item {
-  id: string;
-  title: string;
-  body?: string;
-  type: ItemType;
-}
-
-const MyCard: React.FC<{ item: Item }> = ({ item }) => (
+const MyCard: React.FC<{ item: DialogItem }> = ({ item }) => (
   <Card className="fade-in">
     <Card.Body>
-      <Card.Title as="h6">{item.title}</Card.Title>
-      {item.body && <Card.Text className="fade-in">{item.body}</Card.Text>}
+      {item.type === 'question' && <Card.Title className="fade-in" as="h6">{item.content}</Card.Title>}
+      {item.type === 'answer' && <Card.Text className="fade-in">{item.content}</Card.Text>}
     </Card.Body>
   </Card>
 );
 
-const FinalCard: React.FC<{ item: Item }> = ({ item }) => (
+const FinalCard: React.FC<{ item: DialogItem }> = ({ item }) => (
   <Card className="bg-success text-white fade-in">
     <Card.Body>
-      <Card.Title>{item.title}</Card.Title>
-      <Card.Text>{item.body}</Card.Text>
+      <Card.Title>Диалог завершен</Card.Title>
+      <Card.Text>{item.content}</Card.Text>
     </Card.Body>
   </Card>
 );
-
-const fetchNextStep = async (input: string): Promise<Item[]> => {
-  await new Promise(r => setTimeout(r, 500));
-  step++;
-  if (step === 2) {
-    return [{ id: '2', title: 'Сколько тебе лет?', type: 'question' }];
-  }
-  if (step === 3) {
-    return [{ id: '3', title: 'Какой у тебя любимый цвет?', type: 'question' }];
-  }
-  return [{ id: 'final', title: 'Это всё!', body: 'Спасибо за ответы.', type: 'final' }];
-};
-let step = 1;
 
 const EditorPage: React.FC = () => {
   const [text, setText] = useState('Это старый текст');
@@ -107,45 +87,50 @@ const BottomNav: React.FC<{ mode: string; setMode: (m: 'daily' | 'editor') => vo
 );
 
 const Daily: React.FC = () => {
-  const params = useParams<{ date: string }>();
-  const navigate = useNavigate();
-
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<DialogItem[]>([]); // Инициализация пустым массивом
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'daily' | 'editor'>('daily');
-  const [selectedDate, setSelectedDate] = useState<Date>(parseDateFromPath(params.date));
-  const [isStarted, setIsStarted] = useState(false); // Состояние для начала опроса
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [error, setError] = useState<string | null>(null);
 
-  // Прокрутка до конца страницы
-  const endOfPageRef = useRef<HTMLDivElement>(null);
-
-  // Прокрутка страницы вниз, если добавился новый элемент
-  useEffect(() => {
-    if (items.length > 0 && endOfPageRef.current) {
-      endOfPageRef.current.scrollIntoView({
-        behavior: 'smooth',
-      });
-    }
-  }, [items]);
+  const fetchNextStep = async (date: Date, input: string): Promise<DialogItem[]> => {
+      if (input === '') {
+          return [{ id: '1', content: 'Начали. Как тебя зовут?', type: 'question' }];
+      }
+      try {
+          return await dailyApi.next(date, input);
+      } catch (err) {
+          handleApiError(err, setError);
+          return [];
+      }
+  };
 
   const handleSubmit = async () => {
     if (!inputValue.trim()) return;
     setIsLoading(true);
-    const response = await fetchNextStep(inputValue);
+    const response = await fetchNextStep(selectedDate, inputValue);
+
     setItems(prev => {
-      const last = prev[prev.length - 1];
-      const updatedLast = { ...last, body: inputValue };
-      return [...prev.slice(0, -1), updatedLast, ...response];
+      // Извлекаем только новые элементы, игнорируя уже добавленные
+      const existingIds = new Set(prev.map(item => item.id));
+      const newItems = response.filter(item => !existingIds.has(item.id));
+      return [...prev, ...newItems]; // Добавляем только новые элементы
     });
     setInputValue('');
     setIsLoading(false);
   };
 
-  const lastItem = items[items.length - 1];
+  const handleSubmitStart = async () => {
+    setIsLoading(true);
+    const response = await fetchNextStep(selectedDate, '');
+    setItems(response); // Загружаем все элементы сразу
+    setIsLoading(false);
+  };
+
+  const lastItem = items?.[items.length - 1];
   const showInput = lastItem?.type === 'question';
 
-  // Кастомный компонент для отображения даты как кнопки
   const CustomDateButton = forwardRef<HTMLButtonElement, { value?: string; onClick?: () => void }>(
     ({ value, onClick }, ref) => (
       <Button variant="outline-dark mb-4" onClick={onClick} ref={ref}>
@@ -154,42 +139,34 @@ const Daily: React.FC = () => {
     )
   );
 
-  // Обработка выбора даты
   const handleDateChange = (date: Date | null) => {
     if (!date) return;
     setSelectedDate(date);
-    navigate(`/chat/${formatDate(date)}`);
+    setItems([]);
   };
 
-  // Форматирование даты: dd-mm-yyyy
-  function formatDate(date: Date): string {
-    return date.toLocaleDateString('ru-RU').replace(/\./g, '-');
-  }
-
-  // Парсинг даты из строки
-  function parseDateFromPath(pathDate?: string): Date {
-    if (!pathDate) return new Date();
-    const [day, month, year] = pathDate.split('-').map(Number);
-    return new Date(year, month - 1, day);
-  }
-
   useEffect(() => {
-    if (isStarted) {
-      const firstItem: Item = {
-        id: '1',
-        title: 'Привет! Как тебя зовут?',
-        type: 'question',
-      };
-      setItems([firstItem]);
-    }
-  }, [isStarted]);
+    const fetchData = async () => {
+      if (!items || items.length === 0) {
+        setIsLoading(true);
+        try {
+            const dialog = await dailyApi.getDialog(selectedDate);
+            setItems(dialog);
+        } catch (err) {
+            handleApiError(err, setError);
+        } finally {
+            setIsLoading(false);
+        }
+      }
+    };
+    fetchData();
+  }, [selectedDate]);
 
   return (
     <Container className="mt-3 fade-in" style={{ paddingBottom: '8rem' }}>
       <DatePicker
         selected={selectedDate}
         onChange={handleDateChange}
-//         highlightDates={[subDays(new Date(), 7), addDays(new Date(), 7)]}
         dateFormat="dd-MM-yyyy"
         withPortal
         calendarStartDay={1}
@@ -198,14 +175,22 @@ const Daily: React.FC = () => {
 
       <Card className="shadow-sm fade-in">
         <Card.Body>
-          {mode === 'daily' && !isStarted && (
+          {mode === 'daily' && (!items || items.length === 0) && (
+              <>
+                  {isLoading ? (
+                    <div className="d-flex justify-content-center my-4 fade-in">
+                      <Spinner animation="border" role="status" />
+                    </div>
+                  ) : (
             <div className="text-left fade-in">
               <p>Перед началом опроса, пожалуйста, убедитесь, что вы готовы отвечать на вопросы.</p>
-              <Button onClick={() => setIsStarted(true)}>Начать опрос</Button>
+              <Button onClick={handleSubmitStart}>Начать опрос</Button>
             </div>
+            )}
+        </>
           )}
 
-          {mode === 'daily' && isStarted && (
+          {mode === 'daily' && (items && items.length > 0) && (
             <>
               {items.filter(item => item.type !== 'final').map(item => (
                 <MyCard key={item.id} item={item} />
@@ -243,7 +228,6 @@ const Daily: React.FC = () => {
         </Card.Body>
       </Card>
 
-      <div ref={endOfPageRef}></div> {/* Место для прокрутки */}
       <BottomNav mode={mode} setMode={setMode} />
     </Container>
   );

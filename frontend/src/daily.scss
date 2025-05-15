@@ -1,56 +1,21 @@
-/* Контейнер для сообщений чата */
-.chat-container {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  height: 400px;
-  overflow-y: auto;
-}
-
-/* Сообщения чата */
-.chat-bubble {
-  padding: 10px 15px;
-  border-radius: 20px;
-  margin: 6px 0;
-  font-size: 16px;
-  line-height: 1.5;
-  word-wrap: break-word;
-  word-break: break-word;
-
-  /* Настройка ширины */
-  min-width: 25%;      // Минимальная ширина облачка — 25% от ширины контейнера
-  max-width: 70%;      // Максимальная ширина облачка — 70% от ширины контейнера
-  width: fit-content;  // Адаптируется под контент, но не меньше/больше min/max
-}
-
-.chat-bubble.left {
-  background-color: var(--bs-info-border-subtle);
-  color: #333;
-  margin-right: auto;
-}
-
-.chat-bubble.right {
-  background-color: var(--bs-success-border-subtle);
-  color: var(--bs-white);
-  margin-left: auto;
-}
-
 /* Календарь (DatePicker) */
+.react-datepicker {
+    border: none
+}
+
 .react-datepicker__triangle {
   display: none;
 }
 
 .react-datepicker__header {
-  background-color: var(--bs-secondary);
+  background-color: var(--bs-primary);
   color: var(--bs-white);
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
 }
 
 .react-datepicker__day {
-  color: var(--bs-primary);
+  color: var(--bs-dark);
 }
 
 .react-datepicker__day:hover {
@@ -59,18 +24,28 @@
 }
 
 .react-datepicker__day--selected {
-  background-color: var(--bs-dark);
+  background-color: var(--bs-primary);
   color: var(--bs-white);
 }
 
-/* Адаптивность для мобильных экранов */
-@media (max-width: 768px) {
-  .chat-container {
-    padding: 15px;
-    height: 300px;
-  }
+.react-datepicker__current-month{
+  color: var(--bs-white);
+}
 
-  .chat-bubble {
-    max-width: 90%;
-  }
+.react-datepicker__day-name{
+  color: var(--bs-white);
+}
+
+.react-datepicker__day--selected:not([aria-disabled=true]):hover {
+  background-color: var(--bs-secondary);
+  color: var(--bs-white);
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: none;
+  color: var(--bs-dark);
+}
+
+.react-datepicker__navigation {
+  padding-top: 15px;
 }
