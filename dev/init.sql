@@ -76,11 +76,14 @@ ALTER TABLE daily.note
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON daily.note TO daily;
 
+CREATE TYPE daily.dialog_status AS ENUM ('in_progress', 'finished', 'error');
+
 CREATE TABLE IF NOT EXISTS daily.dialog (
     user_id UUID NOT NULL REFERENCES "user".user (id),
     date DATE NOT NULL,
-    model VARCHAR(50),
+    status daily.dialog_status NOT NULL DEFAULT 'in_progress',
     messages JSONB NOT NULL DEFAULT '[]',
+	summary TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     PRIMARY KEY (user_id, date)

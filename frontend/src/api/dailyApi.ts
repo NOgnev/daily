@@ -24,7 +24,7 @@ export const dailyApi = {
         date: formatLocalDate(date),
       },
     }),
-  next: (date: Date, content: string) =>
+  next: (date: Date, content: string | null) =>
     fetchWithAuth<DialogItem[]>({
       url: `/daily/dialog`,
       method: 'POST',

@@ -62,9 +62,8 @@ i18n.use(initReactI18next).init({
     escapeValue: false, // React уже безопасен
   },
 }).then(() => {
-  console.log("i18next инициализирован успешно!");
 }).catch((err) => {
-  console.error("Ошибка инициализации i18next:", err);
+  console.error(err);
 });
 
 export default i18n;

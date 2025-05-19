@@ -26,7 +26,7 @@ const FinalCard: React.FC<{ item: DialogItem }> = ({ item }) => (
 );
 
 const EditorPage: React.FC = () => {
-  const [text, setText] = useState('Это старый текст');
+  const [text, setText] = useState('Запиши события этого дня');
   const [isEditing, setIsEditing] = useState(false);
 
   return (
@@ -89,15 +89,13 @@ const BottomNav: React.FC<{ mode: string; setMode: (m: 'daily' | 'editor') => vo
 const Daily: React.FC = () => {
   const [items, setItems] = useState<DialogItem[]>([]); // Инициализация пустым массивом
   const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMounting, setIsMounting] = useState(true);
   const [mode, setMode] = useState<'daily' | 'editor'>('daily');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [error, setError] = useState<string | null>(null);
 
-  const fetchNextStep = async (date: Date, input: string): Promise<DialogItem[]> => {
-      if (input === '') {
-          return [{ id: '1', content: 'Начали. Как тебя зовут?', type: 'question' }];
-      }
+  const fetchNextStep = async (date: Date, input: string | null): Promise<DialogItem[]> => {
       try {
           return await dailyApi.next(date, input);
       } catch (err) {
@@ -123,7 +121,7 @@ const Daily: React.FC = () => {
 
   const handleSubmitStart = async () => {
     setIsLoading(true);
-    const response = await fetchNextStep(selectedDate, '');
+    const response = await fetchNextStep(selectedDate, null);
     setItems(response); // Загружаем все элементы сразу
     setIsLoading(false);
   };
@@ -156,6 +154,7 @@ const Daily: React.FC = () => {
             handleApiError(err, setError);
         } finally {
             setIsLoading(false);
+            setIsMounting(false);
         }
       }
     };
@@ -163,73 +162,78 @@ const Daily: React.FC = () => {
   }, [selectedDate]);
 
   return (
-    <Container className="mt-3 fade-in" style={{ paddingBottom: '8rem' }}>
-      <DatePicker
-        selected={selectedDate}
-        onChange={handleDateChange}
-        dateFormat="dd-MM-yyyy"
-        withPortal
-        calendarStartDay={1}
-        customInput={<CustomDateButton />}
-      />
-
-      <Card className="shadow-sm fade-in">
-        <Card.Body>
-          {mode === 'daily' && (!items || items.length === 0) && (
-              <>
-                  {isLoading ? (
-                    <div className="d-flex justify-content-center my-4 fade-in">
-                      <Spinner animation="border" role="status" />
-                    </div>
-                  ) : (
-            <div className="text-left fade-in">
-              <p>Перед началом опроса, пожалуйста, убедитесь, что вы готовы отвечать на вопросы.</p>
-              <Button onClick={handleSubmitStart}>Начать опрос</Button>
+    <div>
+        {isMounting ? (
+            <div className="d-flex justify-content-center my-4">
+              <Spinner animation="border" role="status" />
             </div>
-            )}
-        </>
-          )}
+        ) : (
+            <Container className="mt-3 fade-in" style={{ paddingBottom: '8rem' }}>
+                <DatePicker
+                    selected={selectedDate}
+                    onChange={handleDateChange}
+                    dateFormat="dd-MM-yyyy"
+                    withPortal
+                    calendarStartDay={1}
+                    customInput={<CustomDateButton />}
+                />
 
-          {mode === 'daily' && (items && items.length > 0) && (
-            <>
-              {items.filter(item => item.type !== 'final').map(item => (
-                <MyCard key={item.id} item={item} />
-              ))}
+                <Card className="shadow-sm fade-in">
+                    <Card.Body>
+                        {mode === 'daily' && (!items || items.length === 0) && (
+                            <>
+                                {isLoading ? (
+                                    <div className="d-flex justify-content-center my-4 fade-in">
+                                        <Spinner animation="border" role="status" />
+                                    </div>
+                                ) : (
+                                    <div className="text-left fade-in">
+                                        <p>Ответьте на пару вопросов о событиях дня</p>
+                                        <Button onClick={handleSubmitStart}>Начать</Button>
+                                    </div>
+                                )}
+                            </>
+                        )}
 
-              {showInput && (
-                <>
-                  {isLoading ? (
-                    <div className="d-flex justify-content-center my-4 fade-in">
-                      <Spinner animation="border" role="status" />
-                    </div>
-                  ) : (
-                    <Form className="fade-in" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
-                      <Form.Group controlId="userInput">
-                        <Form.Control
-                          type="text"
-                          placeholder="Введите ответ"
-                          value={inputValue}
-                          onChange={e => setInputValue(e.target.value)}
-                        />
-                      </Form.Group>
-                      <Button className="mt-2 fade-in" onClick={handleSubmit}>
-                        Отправить
-                      </Button>
-                    </Form>
-                  )}
-                </>
-              )}
+                        {mode === 'daily' && (items && items.length > 0) && (
+                            <>
+                                {items.filter(item => item.type !== 'final').map(item => (
+                                    <MyCard key={item.id} item={item} />
+                                ))}
 
-              {lastItem?.type === 'final' && <FinalCard key={lastItem.id} item={lastItem} />}
-            </>
-          )}
+                                {showInput && (
+                                    <>
+                                        {isLoading ? (
+                                            <div className="d-flex justify-content-center my-4 fade-in">
+                                                <Spinner animation="border" role="status" />
+                                            </div>
+                                        ) : (
+                                            <Form className="fade-in" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
+                                                <Form.Group controlId="userInput">
+                                                    <Form.Control
+                                                        type="text"
+                                                        placeholder="Введите ответ"
+                                                        value={inputValue}
+                                                        onChange={e => setInputValue(e.target.value)}
+                                                    />
+                                                </Form.Group>
+                                                <Button className="mt-2" onClick={handleSubmit}>Отправить</Button>
+                                            </Form>
+                                        )}
+                                    </>
+                                )}
 
-          {mode === 'editor' && <EditorPage />}
-        </Card.Body>
-      </Card>
+                                {lastItem?.type === 'final' && <FinalCard key={lastItem.id} item={lastItem} />}
+                            </>
+                        )}
 
-      <BottomNav mode={mode} setMode={setMode} />
-    </Container>
+                        {mode === 'editor' && <EditorPage />}
+                    </Card.Body>
+                </Card>
+            </Container>
+        )}
+        <BottomNav mode={mode} setMode={setMode} />
+    </div>
   );
 };
 
