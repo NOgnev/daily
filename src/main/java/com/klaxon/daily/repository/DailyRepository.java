@@ -64,7 +64,8 @@ public class DailyRepository {
                 SELECT date, summary
                 FROM daily.dialog
                 WHERE user_id = :userId
-                  AND date >= current_date - interval '5 days'
+                  AND date >= :date - interval '5 days'
+                  AND date < :date
                 ORDER BY date;
                 """;
         return jdbcTemplate.query(sql, Map.of("userId", userId, "date", date), (rs, rowNum) ->

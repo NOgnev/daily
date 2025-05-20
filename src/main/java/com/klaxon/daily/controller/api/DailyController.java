@@ -142,7 +142,6 @@ public class DailyController {
                     .filter(summary -> !(summary.summary() == null || summary.summary().isBlank()))
                     .toList();
             try {
-//                    prompt += String.format("\n {\"history\": %s}", objectMapper.writeValueAsString(summaries));
                 prompt = String.format(prompt, objectMapper.writeValueAsString(summaries));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);

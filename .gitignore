@@ -123,5 +123,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-/gptKey.md
 /prompt.md
+/src/main/resources/application-dev.yaml

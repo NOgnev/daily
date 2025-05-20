@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: daily
+  config:
+    encoding: UTF-8
+  datasource:
+    url: jdbc:postgresql://localhost:5432/daily?ApplicationName=${spring.application.name}
+    driver-class-name: org.postgresql.Driver
+    username: admin
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: daily
+      maximum-pool-size: 1
+      max-lifetime: 3600000
+      connection-test-query: SELECT 1
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration-ms: 300000
+  refresh-expiration-ms: 604800000
+  max-devices-count: 5
+
+logging:
+  level:
+    root: info
+    com.klaxon.daily.config.log: info
+
+client:
+  openai:
+    api-key: ${OPENAI_API_KEY}
+    moderation.model: omni-moderation-latest
+    chat:
+      model: gpt-4o-mini
+      temperature: 0.7
+      max-tokens: 500
+      prompt: ${OPENAI_PROMPT}
