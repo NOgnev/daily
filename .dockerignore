@@ -1,0 +1,8 @@
+.gradle
+build
+frontend/node_modules
+node_modules
+.git
+*.iml
+*.log
+*.class
