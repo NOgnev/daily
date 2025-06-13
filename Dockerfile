@@ -20,11 +20,13 @@ RUN npm install --loglevel info --progress
 WORKDIR /home/circleci/app
 COPY --chown=circleci:circleci . .
 
+# Создаём директорию .gradle с правами circleci
+RUN mkdir -p /home/circleci/app/.gradle && chown -R circleci:circleci /home/circleci/app/.gradle
+
 USER circleci
+WORKDIR /home/circleci/app
 
-WORKDIR /home/circleci
-
-RUN gradle bootJar --no-daemon -g /tmp/gradle-cache
+RUN gradle bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre
 
