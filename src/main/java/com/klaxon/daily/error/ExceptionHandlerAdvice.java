@@ -1,6 +1,7 @@
 package com.klaxon.daily.error;
 
 import com.klaxon.daily.config.log.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -22,6 +23,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+@Slf4j
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
@@ -36,19 +38,22 @@ public class ExceptionHandlerAdvice {
             error = exceptionError.name();
             message = exceptionError.getMessage();
         }
+        log.error(e.getMessage(), e);
         return ResponseEntity.status(e.getHttpStatus() != null ? e.getHttpStatus() : statusCode).body(new ErrorResponse(error, message));
     }
 
     @Log
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> unauthorizedError(Throwable t) {
-        return ResponseEntity.status(UNAUTHORIZED).body(new ErrorResponse(UNAUTHORIZED.name(), t.getMessage()));
+        log.error(t.getMessage(), t);
+        return ResponseEntity.status(UNAUTHORIZED).body(new ErrorResponse(UNAUTHORIZED.name(), UNAUTHORIZED.getReasonPhrase()));
     }
 
     @Log
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         var error = ex.getBindingResult().getFieldErrors().stream().findFirst().get();
+        log.error(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), error.getDefaultMessage()));
     }
 
@@ -62,6 +67,7 @@ public class ExceptionHandlerAdvice {
             BindException.class
     })
     public ResponseEntity<ErrorResponse> badRequestError(Throwable t) {
+        log.error(t.getMessage(), t);
         return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), t.getMessage()));
     }
 
@@ -78,6 +84,7 @@ public class ExceptionHandlerAdvice {
     @Log
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorResponse> handle(Throwable t) {
+        log.error(t.getMessage(), t);
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ErrorResponse(INTERNAL_SERVER_ERROR.name(), t.getMessage()));
     }
 }

@@ -1,21 +1,3 @@
--- init.sql
--- DROP ROLE platform;
-
---CREATE USER daily WITH
---    LOGIN
---    NOSUPERUSER
---    NOCREATEDB
---    NOCREATEROLE
---    NOINHERIT
---    NOREPLICATION
---    PASSWORD 'daily';
---
---GRANT CONNECT ON DATABASE daily TO daily;
---
----- SCHEMA: daily
---
----- DROP SCHEMA IF EXISTS daily ;
-
 CREATE SCHEMA IF NOT EXISTS "user"
     AUTHORIZATION daily;
 

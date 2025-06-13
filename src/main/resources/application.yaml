@@ -4,13 +4,13 @@ spring:
   config:
     encoding: UTF-8
   datasource:
-    url: jdbc:postgresql://localhost:5432/daily?ApplicationName=${spring.application.name}
+    url: jdbc:postgresql://${DB_URL}
     driver-class-name: org.postgresql.Driver
-    username: admin
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
       pool-name: daily
-      maximum-pool-size: 1
+      maximum-pool-size: 2
       max-lifetime: 3600000
       connection-test-query: SELECT 1
 jwt:

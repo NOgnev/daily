@@ -25,7 +25,8 @@ public record DialogItem(int id, Role role, Type type, String content) {
     public enum Type {
         QUESTION,
         ANSWER,
-        FINAL;
+        FINAL,
+        ERROR;
 
         @JsonValue
         public String toJson() {
