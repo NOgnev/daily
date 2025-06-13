@@ -20,8 +20,7 @@ RUN npm install --loglevel info --progress
 WORKDIR /home/circleci/app
 COPY --chown=circleci:circleci . .
 
-# Создаём директорию .gradle с правами circleci
-RUN mkdir -p /home/circleci/app/.gradle && chown -R circleci:circleci /home/circleci/app/.gradle
+RUN mkdir -p /home/circleci/app/build/reports/problems && chown -R circleci:circleci /home/circleci/app/build
 
 USER circleci
 WORKDIR /home/circleci/app
