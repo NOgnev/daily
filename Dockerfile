@@ -1,4 +1,3 @@
-# === СТАДИЯ СБОРКИ ===
 FROM cimg/openjdk:21.0-node AS builder
 
 USER root
@@ -13,7 +12,6 @@ ENV PATH="/opt/gradle-8.13/bin:$PATH"
 
 WORKDIR /home/circleci/app
 
-# Копируем package.json для npm install
 COPY frontend/package*.json ./frontend/
 
 WORKDIR /home/circleci/app/frontend
@@ -23,10 +21,11 @@ WORKDIR /home/circleci/app
 COPY --chown=circleci:circleci . .
 
 USER circleci
-# Указываем кэш gradle в /tmp, чтобы избежать проблем с правами
+
+WORKDIR /home/circleci
+
 RUN gradle bootJar --no-daemon -g /tmp/gradle-cache
 
-# === СТАДИЯ РАНТАЙМА ===
 FROM eclipse-temurin:21-jre
 
 RUN useradd -ms /bin/bash springuser
