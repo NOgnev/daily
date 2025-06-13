@@ -42,14 +42,7 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(e.getHttpStatus() != null ? e.getHttpStatus() : statusCode).body(new ErrorResponse(error, message));
     }
 
-    @Log
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> unauthorizedError(Throwable t) {
-        log.error(t.getMessage(), t);
-        return ResponseEntity.status(UNAUTHORIZED).body(new ErrorResponse(UNAUTHORIZED.name(), UNAUTHORIZED.getReasonPhrase()));
-    }
-
-    @Log
+    @Log(logArgs = false)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         var error = ex.getBindingResult().getFieldErrors().stream().findFirst().get();
@@ -57,7 +50,7 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), error.getDefaultMessage()));
     }
 
-    @Log
+    @Log(logArgs = false)
     @ExceptionHandler({
             MissingServletRequestParameterException.class,
             ServletRequestBindingException.class,
@@ -71,17 +64,18 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), t.getMessage()));
     }
 
-    @Log
+    @Log(logArgs = false)
     @ExceptionHandler({
             NoHandlerFoundException.class,
             NoResourceFoundException.class
     })
-    public ModelAndView handleNoHandlerFoundException() {
+    public ModelAndView handleNoHandlerFoundException(Throwable t) {
+        log.error(t.getMessage(), t);
         return new ModelAndView("forward:/index.html");
     }
 
 
-    @Log
+    @Log(logArgs = false)
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorResponse> handle(Throwable t) {
         log.error(t.getMessage(), t);
