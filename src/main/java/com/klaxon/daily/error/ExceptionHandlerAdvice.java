@@ -1,13 +1,14 @@
 package com.klaxon.daily.error;
 
 import com.klaxon.daily.config.log.Log;
+import com.klaxon.daily.config.security.SecurityConfig.CustomAccessDeniedException;
+import com.klaxon.daily.config.security.SecurityConfig.CustomAuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -40,6 +41,22 @@ public class ExceptionHandlerAdvice {
         }
         log.error(e.getMessage(), e);
         return ResponseEntity.status(e.getHttpStatus() != null ? e.getHttpStatus() : statusCode).body(new ErrorResponse(error, message));
+    }
+
+    @Log(logArgs = false)
+    @ExceptionHandler(CustomAccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(CustomAccessDeniedException ex) {
+        log.error(ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(UNAUTHORIZED.name(), ex.getMessage()));
+    }
+
+    @Log(logArgs = false)
+    @ExceptionHandler(CustomAuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthentication(CustomAuthenticationException ex) {
+        log.error(ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(UNAUTHORIZED.name(), ex.getMessage()));
     }
 
     @Log(logArgs = false)
