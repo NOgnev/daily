@@ -1,8 +1,3 @@
-CREATE SCHEMA IF NOT EXISTS "user"
-    AUTHORIZATION daily;
-
-GRANT USAGE ON SCHEMA "user" TO daily;
-
 CREATE TABLE IF NOT EXISTS "user".user (
     id UUID PRIMARY KEY,
     nickname VARCHAR(20) UNIQUE NOT NULL,
@@ -38,10 +33,6 @@ ALTER TABLE "user".refresh_token
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON "user".refresh_token TO daily;
 
-CREATE SCHEMA IF NOT EXISTS daily
-    AUTHORIZATION daily;
-
-GRANT USAGE ON SCHEMA daily TO daily;
 
 CREATE TABLE IF NOT EXISTS daily.note (
     user_id UUID NOT NULL REFERENCES "user".user (id),
