@@ -54,11 +54,11 @@ public class AuthController {
                                                     HttpServletResponse response) {
         LoginResponse login = authService.login(request);
         attachCookie(response, ACCESS_TOKEN_COOKIE, login.accessToken(),
-                true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
+                true, false, "/api", "Strict", jwtAccessExpirationMs / 1_000);
         attachCookie(response, REFRESH_TOKEN_COOKIE, login.refreshToken(),
-                true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
+                true, false, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         attachCookie(response, DEVICE_ID_COOKIE, login.deviceId().toString(),
-                true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
+                true, false, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         return ResponseEntity.ok().body(login.user());
     }
 
@@ -84,11 +84,11 @@ public class AuthController {
                                        HttpServletResponse response) {
         refreshTokenService.deleteRefreshToken(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, "",
-                true, true, "/api", "Strict", 0);
+                true, false, "/api", "Strict", 0);
         attachCookie(response, REFRESH_TOKEN_COOKIE, "",
-                true, true, "/api", "Strict", 0);
+                true, false, "/api", "Strict", 0);
         attachCookie(response, DEVICE_ID_COOKIE, "",
-                true, true, "/api", "Strict", 0);
+                true, false, "/api", "Strict", 0);
         return ResponseEntity.ok().build();
     }
 }
