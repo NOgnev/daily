@@ -8,7 +8,7 @@ spring:
       charset: UTF-8
       enabled: true
       force: true
-      force-request: false
+      force-response: true
   datasource:
     url: jdbc:postgresql://${DB_URL}?ApplicationName=${spring.application.name}
     driver-class-name: org.postgresql.Driver
@@ -21,6 +21,12 @@ spring:
       connection-test-query: SELECT 1
   flyway:
     default-schema: flyway
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force-response: true
 jwt:
   secret: ${JWT_SECRET}
   access-expiration-ms: 300000
