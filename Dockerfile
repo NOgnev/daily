@@ -1,4 +1,3 @@
-# === СТАДИЯ СБОРКИ ===
 FROM cimg/openjdk:21.0-node AS builder
 
 USER root
@@ -11,31 +10,31 @@ RUN curl -sSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o g
 
 ENV PATH="/opt/gradle-8.13/bin:$PATH"
 
+# Работаем с приложением
 WORKDIR /home/circleci/app
 
-# Копируем только package.json и lock-файл
+# Копируем только frontend package.json — для кэширования npm install
 COPY frontend/package*.json ./frontend/
 
+# ✅ Дадим права пользователю на frontend перед npm install
+RUN chown -R circleci:circleci /home/circleci/app
+
+USER circleci
 WORKDIR /home/circleci/app/frontend
 RUN npm install --loglevel info --progress
 
-# Копируем весь проект и сразу задаём владельца
+# 🔁 Вернёмся и скопируем всё остальное
+USER root
 WORKDIR /home/circleci/app
-COPY --chown=circleci:circleci . .
-
-# 🛠️ Создаём .gradle и build директории с нужными правами
-RUN mkdir -p /home/circleci/app/.gradle \
-    && mkdir -p /home/circleci/app/build/reports/problems \
-    && chown -R circleci:circleci /home/circleci/app/.gradle \
-    && chown -R circleci:circleci /home/circleci/app/build
-
+COPY . .
+RUN chown -R circleci:circleci /home/circleci/app
 USER circleci
-WORKDIR /home/circleci/app
 
-# 🏗️ Сборка jar
+# Сборка jar
+WORKDIR /home/circleci/app
 RUN gradle bootJar --no-daemon
 
-# === СТАДИЯ РАНТАЙМА ===
+# === РАНТАЙМ СТАДИЯ ===
 FROM eclipse-temurin:21-jre
 
 RUN useradd -ms /bin/bash springuser

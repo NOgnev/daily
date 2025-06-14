@@ -15,9 +15,6 @@ spring:
       connection-test-query: SELECT 1
   flyway:
     default-schema: flyway
-  encoding:
-    charset: UTF-8
-    force: true
 jwt:
   secret: ${JWT_SECRET}
   access-expiration-ms: 300000

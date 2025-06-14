@@ -1,8 +1,5 @@
 package com.klaxon.daily.error;
 
-import com.klaxon.daily.config.log.Log;
-import com.klaxon.daily.config.security.SecurityConfig.CustomAccessDeniedException;
-import com.klaxon.daily.config.security.SecurityConfig.CustomAuthenticationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
@@ -22,13 +19,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Slf4j
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
-    @Log
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ErrorResponse> appException(AppException e) {
         ErrorRegistry exceptionError = e.getError();
@@ -43,23 +38,6 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(e.getHttpStatus() != null ? e.getHttpStatus() : statusCode).body(new ErrorResponse(error, message));
     }
 
-    @Log(logArgs = false)
-    @ExceptionHandler(CustomAccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDenied(CustomAccessDeniedException ex) {
-        log.error(ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponse(UNAUTHORIZED.name(), ex.getMessage()));
-    }
-
-    @Log(logArgs = false)
-    @ExceptionHandler(CustomAuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthentication(CustomAuthenticationException ex) {
-        log.error(ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponse(UNAUTHORIZED.name(), ex.getMessage()));
-    }
-
-    @Log(logArgs = false)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         var error = ex.getBindingResult().getFieldErrors().stream().findFirst().get();
@@ -67,7 +45,6 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), error.getDefaultMessage()));
     }
 
-    @Log(logArgs = false)
     @ExceptionHandler({
             MissingServletRequestParameterException.class,
             ServletRequestBindingException.class,
@@ -81,7 +58,6 @@ public class ExceptionHandlerAdvice {
         return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), t.getMessage()));
     }
 
-    @Log(logArgs = false)
     @ExceptionHandler({
             NoHandlerFoundException.class,
             NoResourceFoundException.class
@@ -91,8 +67,6 @@ public class ExceptionHandlerAdvice {
         return new ModelAndView("forward:/index.html");
     }
 
-
-    @Log(logArgs = false)
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorResponse> handle(Throwable t) {
         log.error(t.getMessage(), t);
