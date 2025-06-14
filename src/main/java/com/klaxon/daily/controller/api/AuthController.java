@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,7 @@ import static com.klaxon.daily.service.CookieService.attachCookie;
 import static com.klaxon.daily.util.Constants.ACCESS_TOKEN_COOKIE;
 import static com.klaxon.daily.util.Constants.DEVICE_ID_COOKIE;
 import static com.klaxon.daily.util.Constants.REFRESH_TOKEN_COOKIE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -60,7 +62,7 @@ public class AuthController {
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         attachCookie(response, DEVICE_ID_COOKIE, login.deviceId().toString(),
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
-        return ResponseEntity.ok().body(login.user());
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(login.user());
     }
 
     @Log
@@ -76,7 +78,7 @@ public class AuthController {
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         attachCookie(response, DEVICE_ID_COOKIE, refresh.refreshToken().device().id().toString(),
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
-        return ResponseEntity.ok().body(refresh);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(refresh);
     }
 
     @Log
