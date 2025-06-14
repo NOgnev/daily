@@ -1,48 +1,30 @@
-FROM cimg/openjdk:21.0-node AS builder
+# === BUILD STAGE ===
+FROM node:20-bullseye AS frontend
 
-USER root
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install --loglevel info --progress=false
 
-WORKDIR /opt
-RUN curl -sSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o gradle.zip \
-    && unzip gradle.zip \
-    && rm gradle.zip \
-    && ln -s /opt/gradle-8.13/bin/gradle /usr/bin/gradle
+# === JAVA + GRADLE STAGE ===
+FROM gradle:8.13.0-jdk21 AS builder
 
-ENV PATH="/opt/gradle-8.13/bin:$PATH"
+WORKDIR /app
 
-# Работаем с приложением
-WORKDIR /home/circleci/app
-
-# Копируем только frontend package.json — для кэширования npm install
-COPY frontend/package*.json ./frontend/
-
-# ✅ Дадим права пользователю на frontend перед npm install
-RUN chown -R circleci:circleci /home/circleci/app
-
-USER circleci
-WORKDIR /home/circleci/app/frontend
-RUN npm install --loglevel info --progress
-
-# 🔁 Вернёмся и скопируем всё остальное
-USER root
-WORKDIR /home/circleci/app
+# Копируем зависимости node_modules из предыдущей стадии
+COPY --from=frontend /app/frontend/node_modules ./frontend/node_modules
 COPY . .
-RUN chown -R circleci:circleci /home/circleci/app
-USER circleci
 
-# Сборка jar
-WORKDIR /home/circleci/app
+# Сборка backend
 RUN gradle bootJar --no-daemon
 
-# === РАНТАЙМ СТАДИЯ ===
+# === RUNTIME STAGE ===
 FROM eclipse-temurin:21-jre
 
 RUN useradd -ms /bin/bash springuser
 USER springuser
 
 WORKDIR /home/springuser
-COPY --from=builder /home/circleci/app/build/libs/app.jar ./app.jar
+COPY --from=builder /app/build/libs/app.jar ./app.jar
 
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
