@@ -3,6 +3,16 @@ spring:
     name: daily
   config:
     encoding: UTF-8
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  web:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   datasource:
     url: jdbc:postgresql://${DB_URL}?ApplicationName=${spring.application.name}
     driver-class-name: org.postgresql.Driver
@@ -23,7 +33,7 @@ jwt:
 
 logging:
   level:
-    root: info
+    root: debug
     com.klaxon.daily.config.log: info
 
 client:
