@@ -1,20 +1,28 @@
 # === BUILD STAGE ===
-FROM node:20-bullseye AS frontend
+FROM node:20-bullseye AS builder
 
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm install --loglevel info --progress=false
+# Устанавливаем Gradle
+RUN apt-get update && apt-get install -y unzip curl openjdk-21-jdk \
+ && curl -sSL https://services.gradle.org/distributions/gradle-8.13-bin.zip -o gradle.zip \
+ && unzip gradle.zip -d /opt/gradle \
+ && ln -s /opt/gradle/gradle-8.13/bin/gradle /usr/bin/gradle \
+ && rm gradle.zip
 
-# === JAVA + GRADLE STAGE ===
-FROM gradle:8.13.0-jdk21 AS builder
+ENV GRADLE_HOME=/opt/gradle/gradle-8.13
+ENV PATH="${GRADLE_HOME}/bin:${PATH}"
 
 WORKDIR /app
 
-# Копируем зависимости node_modules из предыдущей стадии
-COPY --from=frontend /app/frontend/node_modules ./frontend/node_modules
+# Копируем только package.json и устанавливаем зависимости
+COPY frontend/package*.json ./frontend/
+WORKDIR /app/frontend
+RUN npm install --loglevel info --progress=false
+
+# Копируем весь проект
+WORKDIR /app
 COPY . .
 
-# Сборка backend
+# Сборка jar
 RUN gradle bootJar --no-daemon
 
 # === RUNTIME STAGE ===
