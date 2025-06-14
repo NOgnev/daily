@@ -8,11 +8,7 @@ spring:
       charset: UTF-8
       enabled: true
       force: true
-  web:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
+      force-request: false
   datasource:
     url: jdbc:postgresql://${DB_URL}?ApplicationName=${spring.application.name}
     driver-class-name: org.postgresql.Driver
