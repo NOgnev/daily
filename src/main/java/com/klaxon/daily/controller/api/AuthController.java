@@ -8,6 +8,7 @@ import com.klaxon.daily.dto.response.LoginResponse;
 import com.klaxon.daily.dto.response.RefreshResponse;
 import com.klaxon.daily.service.AuthService;
 import com.klaxon.daily.service.RefreshTokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,7 @@ public class AuthController {
     @Log
     @PostMapping("/login")
     public ResponseEntity<LoginResponse.User> login(@RequestBody @Valid LoginRequest request,
-                                                    HttpServletResponse response) {
+                                                    HttpServletResponse response, HttpServletRequest httpServletRequest) {
         LoginResponse login = authService.login(request);
         attachCookie(response, ACCESS_TOKEN_COOKIE, login.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
@@ -67,7 +68,7 @@ public class AuthController {
     public ResponseEntity<RefreshResponse> refresh(@Hidden
                                                    @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false)
                                                    String refreshToken,
-                                                   HttpServletResponse response) {
+                                                   HttpServletResponse response, HttpServletRequest httpServletRequest) {
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
