@@ -7,7 +7,7 @@ import org.springframework.http.ResponseCookie;
 public class CookieService {
 
     public static void attachCookie(HttpServletResponse response, String name, String value, boolean httpOnly,
-                             boolean secure, String path, String sameSite, long maxAgeSeconds) {
+                                    boolean secure, String path, String sameSite, long maxAgeSeconds) {
         response.addHeader(HttpHeaders.SET_COOKIE,
                 ResponseCookie.from(name, value)
                         .httpOnly(httpOnly)
