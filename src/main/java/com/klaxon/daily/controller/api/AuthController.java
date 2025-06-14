@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,8 @@ import static com.klaxon.daily.service.CookieService.attachCookie;
 import static com.klaxon.daily.util.Constants.ACCESS_TOKEN_COOKIE;
 import static com.klaxon.daily.util.Constants.DEVICE_ID_COOKIE;
 import static com.klaxon.daily.util.Constants.REFRESH_TOKEN_COOKIE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -55,6 +56,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse.User> login(@RequestBody @Valid LoginRequest request,
                                                     HttpServletResponse response, HttpServletRequest httpServletRequest) {
+        log.info("REQUEST CONTENT TYPE = {}", httpServletRequest.getContentType());
         LoginResponse login = authService.login(request);
         attachCookie(response, ACCESS_TOKEN_COOKIE, login.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
@@ -62,7 +64,7 @@ public class AuthController {
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         attachCookie(response, DEVICE_ID_COOKIE, login.deviceId().toString(),
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(login.user());
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(login.user());
     }
 
     @Log
@@ -71,6 +73,7 @@ public class AuthController {
                                                    @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false)
                                                    String refreshToken,
                                                    HttpServletResponse response, HttpServletRequest httpServletRequest) {
+        log.info("REQUEST CONTENT TYPE = {}", httpServletRequest.getContentType());
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
@@ -78,7 +81,7 @@ public class AuthController {
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         attachCookie(response, DEVICE_ID_COOKIE, refresh.refreshToken().device().id().toString(),
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(refresh);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(refresh);
     }
 
     @Log
