@@ -23,9 +23,4 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
     }
-
-    @Bean
-    public ForwardedHeaderFilter forwardedHeaderFilter() {
-        return new ForwardedHeaderFilter();
-    }
 }
