@@ -70,11 +70,11 @@ public class AuthController {
                                                    HttpServletResponse response) {
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),
-                true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
+                true, false, "/api", "Strict", jwtAccessExpirationMs / 1_000);
         attachCookie(response, REFRESH_TOKEN_COOKIE, refresh.refreshToken().token(),
-                true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
+                true, false, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         attachCookie(response, DEVICE_ID_COOKIE, refresh.refreshToken().device().id().toString(),
-                true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
+                true, false, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         return ResponseEntity.ok().body(refresh);
     }
 
