@@ -57,6 +57,7 @@ public class AuthController {
     public ResponseEntity<LoginResponse.User> login(@RequestBody @Valid LoginRequest request,
                                                     HttpServletResponse response, HttpServletRequest httpServletRequest) {
         log.info("REQUEST CONTENT TYPE = {}", httpServletRequest.getContentType());
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         LoginResponse login = authService.login(request);
         attachCookie(response, ACCESS_TOKEN_COOKIE, login.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
@@ -74,6 +75,7 @@ public class AuthController {
                                                    String refreshToken,
                                                    HttpServletResponse response, HttpServletRequest httpServletRequest) {
         log.info("REQUEST CONTENT TYPE = {}", httpServletRequest.getContentType());
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
