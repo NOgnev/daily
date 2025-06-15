@@ -52,11 +52,11 @@ public class AuthController {
                         .build());
     }
 
-    @Log
+//    @Log
     @PostMapping("/login")
     public ResponseEntity<LoginResponse.User> login(@RequestBody @Valid LoginRequest request,
                                                     HttpServletResponse response, HttpServletRequest httpServletRequest) {
-        log.info("REQUEST CONTENT TYPE = {}", httpServletRequest.getContentType());
+        log.info("REQUEST URI={}", httpServletRequest.getRequestURI());
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         LoginResponse login = authService.login(request);
         attachCookie(response, ACCESS_TOKEN_COOKIE, login.accessToken(),
@@ -68,13 +68,13 @@ public class AuthController {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(login.user());
     }
 
-    @Log
+//    @Log
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponse> refresh(@Hidden
                                                    @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false)
                                                    String refreshToken,
                                                    HttpServletResponse response, HttpServletRequest httpServletRequest) {
-        log.info("REQUEST CONTENT TYPE = {}", httpServletRequest.getContentType());
+        log.info("REQUEST URI={}", httpServletRequest.getRequestURI());
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),
@@ -86,7 +86,7 @@ public class AuthController {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(refresh);
     }
 
-    @Log
+//    @Log
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(name = REFRESH_TOKEN_COOKIE) String refreshToken,
                                        HttpServletResponse response) {
