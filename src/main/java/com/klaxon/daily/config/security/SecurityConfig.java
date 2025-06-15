@@ -64,7 +64,7 @@ public class SecurityConfig {
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, e) -> {
             response.setStatus(UNAUTHORIZED.value());
-            response.setContentType("application/json;charset=UTF-8");
+            response.setContentType("application/json");
             response.getWriter().write(new ObjectMapper().writeValueAsString(new ErrorResponse(UNAUTHORIZED.name(), e.getMessage())));
         };
     }
@@ -72,7 +72,7 @@ public class SecurityConfig {
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (httpServletRequest, response, e) -> {
             response.setStatus(UNAUTHORIZED.value());
-            response.setContentType("application/json;charset=UTF-8");
+            response.setContentType("application/json");
             response.getWriter().write(new ObjectMapper().writeValueAsString(new ErrorResponse(UNAUTHORIZED.name(), e.getMessage())));
         };
     }

@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -20,6 +20,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Slf4j
 @RestControllerAdvice
@@ -36,15 +37,21 @@ public class ExceptionHandlerAdvice {
             message = exceptionError.getMessage();
         }
         log.error(e.getMessage(), e);
-        return ResponseEntity.status(e.getHttpStatus() != null ? e.getHttpStatus() : statusCode).contentType(MediaType.APPLICATION_JSON_UTF8)
+        return ResponseEntity.status(e.getHttpStatus() != null ? e.getHttpStatus() : statusCode)
                 .body(new ErrorResponse(error, message));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> unauthorizedError(Throwable t) {
+        log.error(t.getMessage(), t);
+        return ResponseEntity.status(UNAUTHORIZED).body(new ErrorResponse(UNAUTHORIZED.name(), UNAUTHORIZED.getReasonPhrase()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         var error = ex.getBindingResult().getFieldErrors().stream().findFirst().get();
         log.error(ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON_UTF8).body(new ErrorResponse(BAD_REQUEST.name(), error.getDefaultMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), error.getDefaultMessage()));
     }
 
     @ExceptionHandler({
@@ -57,7 +64,7 @@ public class ExceptionHandlerAdvice {
     })
     public ResponseEntity<ErrorResponse> badRequestError(Throwable t) {
         log.error(t.getMessage(), t);
-        return ResponseEntity.status(BAD_REQUEST).contentType(MediaType.APPLICATION_JSON_UTF8).body(new ErrorResponse(BAD_REQUEST.name(), t.getMessage()));
+        return ResponseEntity.status(BAD_REQUEST).body(new ErrorResponse(BAD_REQUEST.name(), BAD_REQUEST.getReasonPhrase()));
     }
 
     @ExceptionHandler({
@@ -72,6 +79,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ErrorResponse> handle(Throwable t) {
         log.error(t.getMessage(), t);
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).contentType(MediaType.APPLICATION_JSON_UTF8).body(new ErrorResponse(INTERNAL_SERVER_ERROR.name(), t.getMessage()));
+        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ErrorResponse(INTERNAL_SERVER_ERROR.name(), INTERNAL_SERVER_ERROR.name()));
     }
 }

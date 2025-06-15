@@ -91,8 +91,8 @@ public class AuthController {
                 true, true, "/api", "Strict", 0);
         attachCookie(response, REFRESH_TOKEN_COOKIE, "",
                 true, true, "/api", "Strict", 0);
-        attachCookie(response, DEVICE_ID_COOKIE, "",
-                true, true, "/api", "Strict", 0);
+//        attachCookie(response, DEVICE_ID_COOKIE, "",
+//                true, true, "/api", "Strict", 0);
         return ResponseEntity.ok().build();
     }
 }
