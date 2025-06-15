@@ -52,12 +52,10 @@ public class AuthController {
                         .build());
     }
 
-//    @Log
+    @Log
     @PostMapping("/login")
     public ResponseEntity<LoginResponse.User> login(@RequestBody @Valid LoginRequest request,
-                                                    HttpServletResponse response, HttpServletRequest httpServletRequest) {
-        log.info("REQUEST URI={}", httpServletRequest.getRequestURI());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                                                    @Hidden HttpServletResponse response) {
         LoginResponse login = authService.login(request);
         attachCookie(response, ACCESS_TOKEN_COOKIE, login.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
@@ -65,17 +63,15 @@ public class AuthController {
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         attachCookie(response, DEVICE_ID_COOKIE, login.deviceId().toString(),
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(login.user());
+        return ResponseEntity.ok().body(login.user());
     }
 
-//    @Log
+    @Log
     @PostMapping("/refresh")
     public ResponseEntity<RefreshResponse> refresh(@Hidden
                                                    @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false)
                                                    String refreshToken,
-                                                   HttpServletResponse response, HttpServletRequest httpServletRequest) {
-        log.info("REQUEST URI={}", httpServletRequest.getRequestURI());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                                                   @Hidden HttpServletResponse response) {
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
@@ -83,13 +79,13 @@ public class AuthController {
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
         attachCookie(response, DEVICE_ID_COOKIE, refresh.refreshToken().device().id().toString(),
                 true, true, "/api", "Strict", jwtRefreshExpirationMs / 1_000);
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(refresh);
+        return ResponseEntity.ok().body(refresh);
     }
 
-//    @Log
+    @Log
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(name = REFRESH_TOKEN_COOKIE) String refreshToken,
-                                       HttpServletResponse response) {
+                                       @Hidden HttpServletResponse response) {
         refreshTokenService.deleteRefreshToken(refreshToken);
         attachCookie(response, ACCESS_TOKEN_COOKIE, "",
                 true, true, "/api", "Strict", 0);
