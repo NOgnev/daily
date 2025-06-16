@@ -8,19 +8,19 @@ import com.klaxon.daily.dto.response.LoginResponse;
 import com.klaxon.daily.dto.response.RefreshResponse;
 import com.klaxon.daily.service.AuthService;
 import com.klaxon.daily.service.RefreshTokenService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 import static com.klaxon.daily.service.CookieService.attachCookie;
 import static com.klaxon.daily.util.Constants.ACCESS_TOKEN_COOKIE;
@@ -55,8 +55,9 @@ public class AuthController {
     @Log
     @PostMapping("/login")
     public ResponseEntity<LoginResponse.User> login(@RequestBody @Valid LoginRequest request,
+                                                    @CookieValue(name = DEVICE_ID_COOKIE, required = false) UUID deviceId,
                                                     @Hidden HttpServletResponse response) {
-        LoginResponse login = authService.login(request);
+        LoginResponse login = authService.login(request, deviceId);
         attachCookie(response, ACCESS_TOKEN_COOKIE, login.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
         attachCookie(response, REFRESH_TOKEN_COOKIE, login.refreshToken(),
@@ -68,8 +69,7 @@ public class AuthController {
 
     @Log
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponse> refresh(@Hidden
-                                                   @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false)
+    public ResponseEntity<RefreshResponse> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE, required = false)
                                                    String refreshToken,
                                                    @Hidden HttpServletResponse response) {
         RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
@@ -91,8 +91,6 @@ public class AuthController {
                 true, true, "/api", "Strict", 0);
         attachCookie(response, REFRESH_TOKEN_COOKIE, "",
                 true, true, "/api", "Strict", 0);
-//        attachCookie(response, DEVICE_ID_COOKIE, "",
-//                true, true, "/api", "Strict", 0);
         return ResponseEntity.ok().build();
     }
 }
