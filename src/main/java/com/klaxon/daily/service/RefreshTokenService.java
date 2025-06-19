@@ -42,15 +42,7 @@ public class RefreshTokenService {
 
     @Log
     @Transactional
-    public RefreshResponse refresh(@Hidden String requestToken) {
-        if (requestToken == null) {
-            throw AppException.builder()
-                    .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
-                    .args(Map.of("message", "Refresh token is required"))
-                    .build();
-        }
-
+    public RefreshResponse refresh(@Hidden String requestToken, UUID deviceId) {
         List<RefreshToken> refreshTokens = refreshTokenRepository.findAllByToken(requestToken);
         var refreshToken = refreshTokens.stream()
                 .filter(rt -> rt.token().equals(requestToken))
@@ -62,12 +54,21 @@ public class RefreshTokenService {
                         .build());
         MDC.put(USER_ID, refreshToken.userId().toString());
 
+        if (!refreshToken.device().id().equals(deviceId)) {
+            throw AppException.builder()
+                    .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
+                    .args(Map.of("message", "Refresh token is invalid"))
+                    .build();
+        }
+
         if (refreshToken.device().expiryDate().isBefore(Instant.now())) {
             throw AppException.builder()
                     .httpStatus(HttpStatus.UNPROCESSABLE_ENTITY)
                     .error(ErrorRegistry.REFRESH_TOKEN_INVALID)
                     .args(Map.of("message", "Refresh token expired"))
-                    .build();}
+                    .build();
+        }
 
         var userDetails = userRepository.findById(refreshToken.userId())
                 .orElseThrow(() -> AppException.builder()
@@ -76,7 +77,7 @@ public class RefreshTokenService {
                         .args(Map.of("userId", refreshToken.userId().toString()))
                         .build());
 
-        var newRefreshToken = createRefreshToken(refreshToken.userId(), refreshToken.device().id(), refreshTokens);
+        var newRefreshToken = createRefreshToken(refreshToken.userId(), deviceId, refreshTokens);
         var newAccessToken = jwtProvider.generateAccessToken(userDetails);
 
         return new RefreshResponse(newAccessToken, newRefreshToken);
@@ -100,10 +101,9 @@ public class RefreshTokenService {
         }
         if (tokenSize >= maxDevicesCount) {
             log.warn("Too many refresh tokens");
-            var oldestToken = tokens.stream()
+            tokens.stream()
                     .min(Comparator.comparing(refreshToken -> refreshToken.device().expiryDate()))
-                    .get();
-            refreshTokenRepository.delete(oldestToken.userId(), oldestToken.device().id());
+                    .ifPresent(oldestToken -> refreshTokenRepository.delete(oldestToken.userId(), oldestToken.device().id()));
         }
 
         RefreshToken token = new RefreshToken(userId, UUID.randomUUID().toString(),

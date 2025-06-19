@@ -69,10 +69,12 @@ public class AuthController {
 
     @Log
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponse> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE, required = false)
+    public ResponseEntity<RefreshResponse> refresh(@CookieValue(name = REFRESH_TOKEN_COOKIE)
                                                    String refreshToken,
+                                                   @CookieValue(name = DEVICE_ID_COOKIE)
+                                                   UUID deviceId,
                                                    @Hidden HttpServletResponse response) {
-        RefreshResponse refresh = refreshTokenService.refresh(refreshToken);
+        RefreshResponse refresh = refreshTokenService.refresh(refreshToken, deviceId);
         attachCookie(response, ACCESS_TOKEN_COOKIE, refresh.accessToken(),
                 true, true, "/api", "Strict", jwtAccessExpirationMs / 1_000);
         attachCookie(response, REFRESH_TOKEN_COOKIE, refresh.refreshToken().token(),
