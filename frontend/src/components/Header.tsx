@@ -7,7 +7,7 @@ import logo from '../logo.svg';
 const Header = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation(); // для отслеживания текущего пути
+  const location = useLocation();
   const [expanded, setExpanded] = useState(false);
 
   const handleLogout = () => {
@@ -16,8 +16,7 @@ const Header = () => {
     setExpanded(false);
   };
 
-  // Явно указываем тип параметра 'path' как string
-  const isActive = (path: string): boolean => location.pathname === path; // Функция для проверки активной ссылки
+  const isActive = (path: string): boolean => location.pathname === path;
 
   return (
     <Navbar bg="dark" variant="dark" expand="lg" sticky="top" expanded={expanded} onToggle={setExpanded} collapseOnSelect>

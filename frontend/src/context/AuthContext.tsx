@@ -44,27 +44,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useStorageListener('user', syncFromStorage);
 
-//   useEffect(() => {
-//     const interval = setInterval(async () => {
-//       try {
-//         const userData = await userApi.getCurrentUser();
-//         setUser(userData);
-//         localStorage.setItem('user', JSON.stringify(userData));
-//       } catch (error) {
-//         console.error('Failed to refresh user:', error);
-//         setUser(null);
-//         localStorage.removeItem('user');
-//       }
-//     }, 60000); // Check every minute
-//
-//     return () => clearInterval(interval);
-//   }, []);
-
   const handleRegister = useCallback(async (nickname: string, password: string) => {
     setLoading(true);
     try {
-      await authApi.register(nickname, password); // Register the user
-      // Immediately log in the user after successful registration
+      await authApi.register(nickname, password);
       const loginUser = await authApi.login(nickname, password);
       localStorage.setItem('user', JSON.stringify(loginUser));
       setUser(loginUser);

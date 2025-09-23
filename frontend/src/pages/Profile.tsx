@@ -67,7 +67,6 @@ const Profile = () => {
             <hr />
             <p><strong>Id:</strong> {user?.id}</p>
             <p><strong>Nickname:</strong> {user?.nickname}</p>
-            {/*<p><strong>Email:</strong> {user?.email || 'Not set'}</p>*/}
           </div>
 
           <div className="mb-4">

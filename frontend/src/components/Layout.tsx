@@ -7,7 +7,7 @@ const Layout = () => {
     <div className="d-flex flex-column min-vh-100 fade-in">
       <Header />
       <Container className="flex-grow-1 mt-4">
-        <Outlet /> {/* Здесь будут отображаться дочерние страницы */}
+        <Outlet />
       </Container>
     </div>
   );

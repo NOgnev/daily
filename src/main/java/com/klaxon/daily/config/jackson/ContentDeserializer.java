@@ -16,25 +16,21 @@ public class ContentDeserializer extends JsonDeserializer<OpenAiClient.ChatRespo
         ObjectMapper mapper = (ObjectMapper) p.getCodec();
         JsonNode node = mapper.readTree(p);
 
-        // 🎯 Случай 1: поле пришло как строка, содержащая JSON (некорректная сериализация)
         if (node.isTextual()) {
             String raw = node.asText();
 
             try {
-                JsonNode parsed = mapper.readTree(raw); // пытаемся распарсить строку как JSON-объект
+                JsonNode parsed = mapper.readTree(raw);
                 return parseContent(parsed);
             } catch (Exception e) {
-                // Если строка не JSON — fallback: берём как текст
                 return new OpenAiClient.ChatResponse.Choice.Message.Content(DialogItem.Type.FINAL, raw, null);
             }
         }
 
-        // 🎯 Случай 2: поле уже объект, как и должно быть
         if (node.isObject()) {
             return parseContent(node);
         }
 
-        // 🔁 Fallback — пустой Content
         return new OpenAiClient.ChatResponse.Choice.Message.Content(DialogItem.Type.FINAL, "", null);
     }
 
@@ -44,7 +40,7 @@ public class ContentDeserializer extends JsonDeserializer<OpenAiClient.ChatRespo
             try {
                 type = DialogItem.Type.valueOf(node.get("type").asText().toUpperCase());
             } catch (IllegalArgumentException ignored) {
-                // fallback to TEXT
+
             }
         }
 

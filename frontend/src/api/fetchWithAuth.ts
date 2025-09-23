@@ -25,7 +25,7 @@ export async function fetchWithAuth<T = any>(
 ): Promise<T> {
   const requestConfig: AxiosRequestConfig = {
     ...config,
-    withCredentials: true, // подстраховка
+    withCredentials: true,
   };
 
   try {

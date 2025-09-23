@@ -87,7 +87,7 @@ const BottomNav: React.FC<{ mode: string; setMode: (m: 'daily' | 'editor') => vo
 );
 
 const Daily: React.FC = () => {
-  const [items, setItems] = useState<DialogItem[]>([]); // Инициализация пустым массивом
+  const [items, setItems] = useState<DialogItem[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isMounting, setIsMounting] = useState(true);
@@ -110,10 +110,9 @@ const Daily: React.FC = () => {
     const response = await fetchNextStep(selectedDate, inputValue);
 
     setItems(prev => {
-      // Извлекаем только новые элементы, игнорируя уже добавленные
       const existingIds = new Set(prev.map(item => item.id));
       const newItems = response.filter(item => !existingIds.has(item.id));
-      return [...prev, ...newItems]; // Добавляем только новые элементы
+      return [...prev, ...newItems];
     });
     setInputValue('');
     setIsLoading(false);
@@ -122,7 +121,7 @@ const Daily: React.FC = () => {
   const handleSubmitStart = async () => {
     setIsLoading(true);
     const response = await fetchNextStep(selectedDate, null);
-    setItems(response); // Загружаем все элементы сразу
+    setItems(response);
     setIsLoading(false);
   };
 

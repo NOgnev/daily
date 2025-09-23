@@ -29,7 +29,7 @@ const Login = () => {
       return;
     }
 
-    setFormErrors({}); // 🧼 Сброс ошибок после успешной валидации
+    setFormErrors({});
 
     try {
       await login(nickname, password);

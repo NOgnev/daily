@@ -1,6 +1,5 @@
-$theme: "lux"; // Название темы
+$theme: "lux";
 
-// Переопределение переменных до подключения Bootstrap
 $primary: #6E8B6D;
 $secondary: #3B4F3D;
 $success: #A8C3A0;
@@ -10,7 +9,6 @@ $danger: #d14f3d;
 $light: #d4e1d0;
 $dark: #1a231b;
 
-// Импорт темы Bootswatch
 @import "~bootswatch/dist/lux/variables";
 @import "~bootstrap/scss/bootstrap";
 @import "~bootswatch/dist/lux/bootswatch";

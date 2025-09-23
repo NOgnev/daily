@@ -10,6 +10,19 @@ import reportWebVitals from './reportWebVitals';
 import './i18n';
 import './yupLocale';
 
+console.log(`%c
+
+      dP MMP"""""""MM M""M dP
+      88 M\' .mmmm  MM M  M 88
+.d888b88 M         \`M M  M 88 dP    dP
+88'  \`88 M  MMMMM  MM M  M 88 88    88
+88.  .88 M  MMMMM  MM M  M 88 88.  .88
+\`88888P8 M  MMMMM  MM M  M dP \`8888P88
+         MMMMMMMMMMMM MMMM         .88
+                               d8888P
+`, 'color: white; font-family: monospace; font-size: 12px;');
+console.log('%cWelcome to dAIly v1.0.0', 'color: white; font-size: 14px;');
+
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
@@ -23,7 +36,4 @@ root.render(
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

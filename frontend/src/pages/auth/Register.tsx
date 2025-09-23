@@ -26,7 +26,7 @@ const Register = () => {
       return;
     }
 
-    setFormErrors({}); // 🧼 Сброс ошибок после успешной валидации
+    setFormErrors({});
 
     try {
       await register(nickname, password);
