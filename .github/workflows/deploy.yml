@@ -26,12 +26,15 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
 
-      # 4. Копируем папку prod на VPS (создаст директорию, если её нет)
+      # 4. Создаём родительскую директорию и копируем папку prod на VPS
       - name: Copy prod folder to VPS
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: rsync -avz --delete ./prod/ $DEPLOY_USER@$DEPLOY_HOST:/opt/projects/daily/prod/
+        run: |
+          REMOTE_DIR="/opt/projects/daily"
+          ssh $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $REMOTE_DIR"
+          rsync -avz --delete ./prod/ $DEPLOY_USER@$DEPLOY_HOST:$REMOTE_DIR/
 
       # 5. Сборка Docker образа на Actions
       - name: Build Docker image
@@ -69,7 +72,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_PROMPT: ${{ secrets.OPENAI_PROMPT }}
         run: |
-          REMOTE_DIR="/opt/projects/daily/prod"
+          REMOTE_DIR="/opt/projects/daily"
           ssh $DEPLOY_USER@$DEPLOY_HOST "\
             cd $REMOTE_DIR && \
             POSTGRES_PASSWORD='$POSTGRES_PASSWORD' \
