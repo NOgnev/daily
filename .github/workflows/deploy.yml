@@ -41,8 +41,10 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          ssh $DEPLOY_USER@$DEPLOY_HOST "docker load -i /tmp/daily.tar"
-
+          ssh $DEPLOY_USER@$DEPLOY_HOST "\
+            docker load -i /tmp/daily.tar && \
+            rm -f /tmp/daily.tar \
+          "
       # 5️⃣ Запуск контейнеров через docker-compose
       - name: Start containers on VPS
         env:
