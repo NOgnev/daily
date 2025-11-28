@@ -20,22 +20,28 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 1️⃣ Сборка Docker образа на Actions
+      # 3. Добавляем VPS в known_hosts
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      # 4. Сборка Docker образа на Actions
       - name: Build Docker image
         run: docker build -t daily:latest .
 
-      # 2️⃣ Сохраняем образ в tar
+      # 5. Сохраняем образ в tar
       - name: Save Docker image to tar
         run: docker save daily:latest -o daily.tar
 
-      # 3️⃣ Копируем tar на VPS
+      # 6. Копируем tar на VPS
       - name: Copy image to VPS
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: scp daily.tar $DEPLOY_USER@$DEPLOY_HOST:/tmp/
 
-      # 4️⃣ Загружаем образ на VPS
+      # 7. Загружаем образ на VPS и удаляем tar
       - name: Load image on VPS
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -45,7 +51,8 @@ jobs:
             docker load -i /tmp/daily.tar && \
             rm -f /tmp/daily.tar \
           "
-      # 5️⃣ Запуск контейнеров через docker-compose
+
+      # 8. Запуск контейнеров через docker-compose и очистка старых образов
       - name: Start containers on VPS
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
