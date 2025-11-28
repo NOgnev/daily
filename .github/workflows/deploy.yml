@@ -20,29 +20,30 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 3. Копирование всего репозитория на VPS
-      - name: Copy repository to VPS
+      # 1️⃣ Сборка Docker образа на Actions
+      - name: Build Docker image
+        run: docker build -t daily:latest .
+
+      # 2️⃣ Сохраняем образ в tar
+      - name: Save Docker image to tar
+        run: docker save daily:latest -o daily.tar
+
+      # 3️⃣ Копируем tar на VPS
+      - name: Copy image to VPS
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: scp daily.tar $DEPLOY_USER@$DEPLOY_HOST:/tmp/
+
+      # 4️⃣ Загружаем образ на VPS
+      - name: Load image on VPS
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          REMOTE_DIR="/opt/projects/daily"
-          ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $REMOTE_DIR"
-          rsync -avz --delete ./ $DEPLOY_USER@$DEPLOY_HOST:$REMOTE_DIR/
+          ssh $DEPLOY_USER@$DEPLOY_HOST "docker load -i /tmp/daily.tar"
 
-      # 4. Билд проекта на VPS в фоне
-      - name: Build on VPS in background
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: |
-          REMOTE_DIR="/opt/projects/daily"
-          ssh $DEPLOY_USER@$DEPLOY_HOST "\
-            cd $REMOTE_DIR && \
-            nohup docker compose -f prod/docker-compose.yml build > build.log 2>&1 & \
-          "
-
-      # 5. Запуск контейнеров на VPS
+      # 5️⃣ Запуск контейнеров через docker-compose
       - name: Start containers on VPS
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}

@@ -2,10 +2,8 @@ version: '3.9'
 
 services:
   daily:
+    image: daily:latest
     container_name: daily
-    build:
-      context: ..
-      dockerfile: Dockerfile
     environment:
       DB_URL: postgres:5432/daily
       DB_USERNAME: daily
