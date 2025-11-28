@@ -43,5 +43,5 @@ jobs:
             JWT_SECRET='$JWT_SECRET' \
             OPENAI_API_KEY='$OPENAI_API_KEY' \
             OPENAI_PROMPT='$OPENAI_PROMPT' \
-            docker compose up -d --build \
+            docker compose -f prod/docker-compose.yml up -d --build \
           "
