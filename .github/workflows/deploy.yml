@@ -1,0 +1,47 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy prod folder to VPS
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          REMOTE_DIR="/opt/projects/daily"
+          ssh -o StrictHostKeyChecking=no $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $REMOTE_DIR"
+          rsync -avz --delete ./prod/ $DEPLOY_USER@$DEPLOY_HOST:$REMOTE_DIR/
+
+      - name: Deploy with Docker Compose
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_PROMPT: ${{ secrets.OPENAI_PROMPT }}
+        run: |
+          REMOTE_DIR="/opt/projects/daily"
+          ssh $DEPLOY_USER@$DEPLOY_HOST "\
+            cd $REMOTE_DIR && \
+            POSTGRES_PASSWORD='$POSTGRES_PASSWORD' \
+            JWT_SECRET='$JWT_SECRET' \
+            OPENAI_API_KEY='$OPENAI_API_KEY' \
+            OPENAI_PROMPT='$OPENAI_PROMPT' \
+            docker compose up -d --build \
+          "
